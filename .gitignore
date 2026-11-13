@@ -1,0 +1,23 @@
+# Gradle / Android Studio
+.gradle/
+build/
+local.properties
+.idea/
+*.iml
+captures/
+.cxx/
+
+# Bản build và khoá ký: không bao giờ đưa lên repo
+*.apk
+*.aab
+*.idsig
+*.jks
+*.keystore
+
+# Dữ liệu riêng trên máy người dùng
+tools/**/config.json
+tools/**/*.log
+tools/**/disabled-by-tidyo.txt
+tools/**/platform-tools/
+tools/wallpapers/
+screenshots/

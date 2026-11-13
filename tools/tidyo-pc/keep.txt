@@ -1,0 +1,3 @@
+# Các ứng dụng bạn cài mà KHÔNG muốn bị buộc dừng ở mục 4 (mỗi dòng một tên gói).
+# Ví dụ: launcher thay thế, VPN, trình chặn quảng cáo, bàn phím.
+# com.example.app

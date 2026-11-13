@@ -1,0 +1,40 @@
+# Danh sách ứng dụng cài sẵn có thể vô hiệu hoá trên Sony Android TV.
+# Định dạng:  tên.gói | ghi chú
+# Script chỉ hiện những gói THỰC SỰ có và đang bật trên tivi của bạn, và luôn hỏi trước khi tắt.
+# Vô hiệu hoá đảo ngược được (mục 6 trong menu). Thêm/bớt dòng tuỳ ý.
+#
+# KHÔNG thêm vào đây: launcher (com.google.android.tvlauncher, com.google.android.leanbacklauncher),
+# com.android.systemui, com.android.tv.settings, com.google.android.gms, com.android.providers.*,
+# com.sony.dtv.tvx (xem TV), com.sony.dtv.tvinput.* (cổng HDMI/ăng-ten), bàn phím đang dùng.
+
+# --- Google: ứng dụng giải trí ít dùng ---
+com.google.android.play.games            | Google Play Games
+com.google.android.videos                | Google Play Phim (Google TV)
+com.google.android.music                 | Google Play Âm nhạc (đã ngừng dịch vụ)
+com.google.android.youtube.tvmusic       | YouTube Music
+com.google.android.feedback              | Gửi phản hồi cho Google
+com.google.android.partnersetup          | Google Partner Setup
+com.google.android.marvin.talkback       | TalkBack (đọc màn hình) - chỉ tắt nếu không dùng trợ năng
+com.google.android.syncadapters.calendar | Đồng bộ lịch Google
+com.google.android.syncadapters.contacts | Đồng bộ danh bạ Google
+
+# --- Ứng dụng đối tác cài sẵn: chỉ tắt nếu bạn không xem ---
+com.amazon.amazonvideo.livingroom        | Amazon Prime Video
+com.netflix.ninja                        | Netflix
+com.opera.sdk.example                    | Trình duyệt Opera/Vewd cài sẵn
+
+# --- Sony: quảng bá, gợi ý, demo ---
+com.sony.dtv.sonyselect                  | Sony Select (gợi ý ứng dụng)
+com.sony.dtv.sonyshelf                   | Sony Shelf (kệ ứng dụng quảng bá)
+com.sony.dtv.discovery                   | Discover (thanh gợi ý nội dung)
+com.sony.dtv.imanual                     | Hướng dẫn sử dụng điện tử
+com.sony.dtv.demomode                    | Chế độ trưng bày cửa hàng
+com.sony.dtv.demosupport                 | Hỗ trợ chế độ trưng bày
+com.sony.dtv.photosharingplus            | Photo Sharing Plus
+com.sony.dtv.interactivetvplatform       | Nền tảng TV tương tác (HbbTV)
+com.sony.dtv.interactivetvutil           | Tiện ích TV tương tác
+com.sony.dtv.watchtvrecommendation       | Gợi ý kênh TV trên màn hình chính
+com.sony.dtv.networkrecommendation       | Gợi ý nội dung mạng
+
+# --- Theo dõi nội dung xem ---
+tv.samba.ssm                             | Samba Interactive TV (theo dõi nội dung đang xem)
