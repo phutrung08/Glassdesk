@@ -1,7 +1,8 @@
 #Requires -Version 5.1
 <#
   Chep hinh nen tu may tinh sang tivi cho Glassdeck.
-  Bo hinh (.jpg .jpeg .png .webp) vao thu muc "wallpapers" canh file nay roi chay Chep-hinh-nen.bat.
+  Chep 13 hinh nen co san cua du an (thu muc wallpapers o goc repo) cung hinh rieng cua ban:
+  bo hinh (.jpg .jpeg .png .webp) vao thu muc "wallpapers" canh file nay roi chay Chep-hinh-nen.bat.
 
     .\push-wallpapers.ps1            # chep them hinh moi, giu hinh cu tren tivi
     .\push-wallpapers.ps1 -Sync      # tivi chi con dung nhung hinh dang co trong thu muc wallpapers
@@ -44,8 +45,16 @@ if ($ip -notmatch '^[0-9A-Za-z.:-]+$') { throw "Dia chi IP trong config.json kho
 $serial = '{0}:5555' -f $ip
 
 if (-not (Test-Path $Local)) { New-Item -ItemType Directory $Local | Out-Null }
-$files = @(Get-ChildItem $Local -File | Where-Object { $_.Extension -match '^\.(jpg|jpeg|png|webp)$' })
-if ($files.Count -eq 0) { Write-Host "Thu muc $Local chua co hinh nao."; exit 0 }
+# Hinh co san cua du an truoc, hinh rieng cua ban sau (trung ten thi hinh rieng thang).
+$Bundled = Join-Path (Split-Path $Here) 'wallpapers'
+$byName = [ordered]@{}
+foreach ($dir in @($Bundled, $Local)) {
+    if (-not (Test-Path $dir)) { continue }
+    Get-ChildItem $dir -File | Where-Object { $_.Extension -match '^\.(jpg|jpeg|png|webp)$' } |
+        ForEach-Object { $byName[$_.Name] = $_ }
+}
+$files = @($byName.Values)
+if ($files.Count -eq 0) { Write-Host "Chua co hinh nao trong $Bundled hoac $Local."; exit 0 }
 
 & $Adb connect $serial | Out-Host
 & $Adb -s $serial shell "mkdir -p '$Remote'" | Out-Null
