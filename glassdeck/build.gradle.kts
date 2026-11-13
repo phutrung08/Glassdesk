@@ -44,6 +44,13 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
+    // Ngôn ngữ giao diện đổi được trong app, nên bản bundle không được tách tài nguyên theo ngôn ngữ.
+    bundle {
+        language {
+            enableSplit = false
+        }
+    }
+
     testOptions {
         unitTests.isReturnDefaultValues = true
     }

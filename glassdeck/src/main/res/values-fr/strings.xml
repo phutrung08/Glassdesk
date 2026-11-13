@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Machine-assisted translation, please have a native speaker review -->
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="pill_inputs">Entrées</string>
+    <string name="pill_settings">Paramètres</string>
+
+    <string name="app_menu_to_front">Mettre au premier plan</string>
+    <string name="app_menu_move_left">Déplacer à gauche</string>
+    <string name="app_menu_move_right">Déplacer à droite</string>
+    <string name="app_menu_hide">Masquer de l\'écran d\'accueil</string>
+    <string name="app_menu_info">Infos de l\'application</string>
+
+    <string name="toast_cannot_open">Impossible d\'ouvrir %1$s</string>
+    <string name="toast_info_failed">Impossible d\'ouvrir la page d\'infos de l\'application</string>
+    <string name="toast_no_inputs">Ce téléviseur ne fournit pas la liste des entrées. Utilisez le bouton Source de votre télécommande.</string>
+    <string name="toast_input_switch_failed">Impossible de passer à %1$s</string>
+
+    <string name="settings_title">Paramètres</string>
+    <string name="settings_wallpaper">Fond d\'écran</string>
+    <string name="settings_tray_opacity">Opacité du panneau et des boutons</string>
+    <string name="settings_menu_opacity">Opacité du menu</string>
+    <string name="settings_clock24">Horloge 24 h</string>
+    <string name="settings_language">Langue</string>
+    <string name="settings_cleanup">Nettoyage</string>
+    <string name="settings_hidden_apps">Applications masquées</string>
+    <string name="settings_tv_settings">Paramètres du téléviseur</string>
+    <string name="toast_settings_failed">Impossible d\'ouvrir les paramètres</string>
+    <string name="toast_tidyo_missing">Tidyo TV n\'est pas installé</string>
+    <string name="toast_no_hidden">Aucune application masquée</string>
+    <plurals name="toast_hidden_restored">
+        <item quantity="one">%d application de nouveau visible</item>
+        <item quantity="other">%d applications de nouveau visibles</item>
+        <item quantity="many">%d applications de nouveau visibles</item>
+    </plurals>
+    <string name="free_value">%1$s libres</string>
+    <string name="percent">%1$d%%</string>
+
+    <string name="wallpaper_default">Par défaut</string>
+    <plurals name="wallpaper_value_auto">
+        <item quantity="one">Changement auto · %d image</item>
+        <item quantity="other">Changement auto · %d images</item>
+        <item quantity="many">Changement auto · %d images</item>
+    </plurals>
+    <string name="wp_title">Fond d\'écran</string>
+    <string name="wp_mode_single">Image unique</string>
+    <string name="wp_mode_auto">Changement auto</string>
+    <string name="wp_interval_label">Changer toutes les</string>
+    <string name="wp_add_tile">Ajouter depuis le téléviseur / USB</string>
+    <string name="toast_wp_default_not_in_auto">Le fond par défaut ne peut pas être utilisé en mode changement auto</string>
+    <string name="toast_wp_none_selected">Aucune image sélectionnée, le mode du fond d\'écran est inchangé</string>
+    <string name="toast_wp_read_failed">Impossible de lire l\'image %1$s</string>
+
+    <string name="wp_name_sunset">Coucher de soleil</string>
+    <string name="wp_name_ocean">Océan</string>
+    <string name="wp_name_aurora">Aurore boréale</string>
+    <string name="wp_name_peach">Rose pêche</string>
+    <string name="wp_name_fire_ice">Feu et glace</string>
+    <string name="wp_name_tidyo_blue">Tidyo bleu</string>
+    <string name="wp_name_tidyo_green">Tidyo vert</string>
+    <string name="wp_name_tidyo_red">Tidyo rouge</string>
+    <string name="wp_name_tidyo_purple">Tidyo violet</string>
+    <string name="wp_name_tidyo_yellow">Tidyo jaune</string>
+    <string name="wp_name_tidyo_orange">Tidyo orange</string>
+    <string name="wp_name_dusk_mountains">Montagnes au crépuscule</string>
+    <string name="wp_name_night_city">Ville de nuit</string>
+
+    <string name="slider_hint">◀ ▶ pour régler · OK pour enregistrer</string>
+    <string name="interval_title">Changer l\'image toutes les</string>
+    <plurals name="interval_seconds">
+        <item quantity="one">%d seconde</item>
+        <item quantity="other">%d secondes</item>
+        <item quantity="many">%d secondes</item>
+    </plurals>
+    <plurals name="interval_minutes">
+        <item quantity="one">%d minute</item>
+        <item quantity="other">%d minutes</item>
+        <item quantity="many">%d minutes</item>
+    </plurals>
+    <plurals name="interval_hours">
+        <item quantity="one">%d heure</item>
+        <item quantity="other">%d heures</item>
+        <item quantity="many">%d heures</item>
+    </plurals>
+    <plurals name="interval_unit_seconds" tools:ignore="ImpliedQuantity">
+        <item quantity="one">seconde</item>
+        <item quantity="other">secondes</item>
+        <item quantity="many">secondes</item>
+    </plurals>
+    <plurals name="interval_unit_minutes" tools:ignore="ImpliedQuantity">
+        <item quantity="one">minute</item>
+        <item quantity="other">minutes</item>
+        <item quantity="many">minutes</item>
+    </plurals>
+    <plurals name="interval_unit_hours" tools:ignore="ImpliedQuantity">
+        <item quantity="one">heure</item>
+        <item quantity="other">heures</item>
+        <item quantity="many">heures</item>
+    </plurals>
+
+    <string name="language_system">Par défaut du système</string>
+
+    <string name="roots_title">D\'où récupérer les images ?</string>
+    <string name="roots_title_no_usb">D\'où récupérer les images ? (aucune clé USB détectée)</string>
+    <string name="root_usb">USB · %1$s</string>
+    <string name="root_internal">Stockage du téléviseur · %1$s</string>
+    <string name="browse_back">Retour</string>
+    <plurals name="browse_add_all">
+        <item quantity="one">Ajouter %d image de ce dossier</item>
+        <item quantity="other">Ajouter les %d images de ce dossier</item>
+        <item quantity="many">Ajouter les %d images de ce dossier</item>
+    </plurals>
+    <string name="browse_empty">Ce dossier ne contient aucune image (.jpg .png .webp)</string>
+    <string name="toast_no_storage">Aucun stockage n\'a pu être lu. Essayez de débrancher puis de rebrancher la clé USB.</string>
+    <string name="toast_perm_needed">L\'autorisation d\'accès au stockage est nécessaire pour récupérer des images depuis le téléviseur ou une clé USB</string>
+    <plurals name="toast_copying">
+        <item quantity="one">Copie de %d image…</item>
+        <item quantity="other">Copie de %d images…</item>
+        <item quantity="many">Copie de %d images…</item>
+    </plurals>
+    <plurals name="toast_copied">
+        <item quantity="one">%d image ajoutée. Choisissez-la dans Fond d\'écran.</item>
+        <item quantity="other">%d images ajoutées. Choisissez-les dans Fond d\'écran.</item>
+        <item quantity="many">%d images ajoutées. Choisissez-les dans Fond d\'écran.</item>
+    </plurals>
+    <string name="toast_copied_partial">%1$d images sur %2$d ajoutées ; les autres n\'ont pas pu être copiées.</string>
+
+    <string name="cleanup_title">Nettoyage</string>
+    <string name="cleanup_hint">Trié par taille installée. Appuyez sur OK sur une application pour ouvrir la page d\'infos système, où vous pouvez vider le cache, forcer l\'arrêt ou désinstaller l\'application.</string>
+    <string name="cleanup_storage">Stockage</string>
+    <string name="cleanup_free_of">%1$s libres / %2$s</string>
+    <string name="toast_details_failed">Impossible d\'ouvrir la page d\'infos de %1$s</string>
+</resources>

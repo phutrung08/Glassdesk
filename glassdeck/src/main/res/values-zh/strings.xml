@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Machine-assisted translation, please have a native speaker review -->
+<resources>
+    <string name="pill_inputs">信号源</string>
+    <string name="pill_settings">设置</string>
+
+    <string name="app_menu_to_front">移到最前</string>
+    <string name="app_menu_move_left">向左移动</string>
+    <string name="app_menu_move_right">向右移动</string>
+    <string name="app_menu_hide">从主屏幕隐藏</string>
+    <string name="app_menu_info">应用信息</string>
+
+    <string name="toast_cannot_open">无法打开 %1$s</string>
+    <string name="toast_info_failed">无法打开应用信息页面</string>
+    <string name="toast_no_inputs">此电视不提供信号源列表，请使用遥控器上的“信号源”按钮。</string>
+    <string name="toast_input_switch_failed">无法切换到 %1$s</string>
+
+    <string name="settings_title">设置</string>
+    <string name="settings_wallpaper">壁纸</string>
+    <string name="settings_tray_opacity">托盘和按钮透明度</string>
+    <string name="settings_menu_opacity">菜单透明度</string>
+    <string name="settings_clock24">24 小时制时钟</string>
+    <string name="settings_language">语言</string>
+    <string name="settings_cleanup">清理</string>
+    <string name="settings_hidden_apps">已隐藏的应用</string>
+    <string name="settings_tv_settings">电视设置</string>
+    <string name="toast_settings_failed">无法打开设置</string>
+    <string name="toast_tidyo_missing">未安装 Tidyo TV</string>
+    <string name="toast_no_hidden">没有已隐藏的应用</string>
+    <plurals name="toast_hidden_restored">
+        <item quantity="other">已重新显示 %d 个应用</item>
+    </plurals>
+    <string name="free_value">剩余 %1$s</string>
+    <string name="percent">%1$d%%</string>
+
+    <string name="wallpaper_default">默认</string>
+    <plurals name="wallpaper_value_auto">
+        <item quantity="other">自动切换 · %d 张图片</item>
+    </plurals>
+    <string name="wp_title">壁纸</string>
+    <string name="wp_mode_single">单张图片</string>
+    <string name="wp_mode_auto">自动切换</string>
+    <string name="wp_interval_label">每隔</string>
+    <string name="wp_add_tile">从电视 / U 盘添加</string>
+    <string name="toast_wp_default_not_in_auto">默认背景无法用于自动切换模式</string>
+    <string name="toast_wp_none_selected">未选择图片，壁纸模式保持不变</string>
+    <string name="toast_wp_read_failed">无法读取图片 %1$s</string>
+
+    <string name="wp_name_sunset">日落</string>
+    <string name="wp_name_ocean">海洋</string>
+    <string name="wp_name_aurora">极光</string>
+    <string name="wp_name_peach">桃粉色</string>
+    <string name="wp_name_fire_ice">冰与火</string>
+    <string name="wp_name_tidyo_blue">Tidyo 蓝</string>
+    <string name="wp_name_tidyo_green">Tidyo 绿</string>
+    <string name="wp_name_tidyo_red">Tidyo 红</string>
+    <string name="wp_name_tidyo_purple">Tidyo 紫</string>
+    <string name="wp_name_tidyo_yellow">Tidyo 黄</string>
+    <string name="wp_name_tidyo_orange">Tidyo 橙</string>
+    <string name="wp_name_dusk_mountains">暮色群山</string>
+    <string name="wp_name_night_city">夜色都市</string>
+
+    <string name="slider_hint">◀ ▶ 调节 · 按 OK 保存</string>
+    <string name="interval_title">图片切换间隔</string>
+    <plurals name="interval_seconds">
+        <item quantity="other">%d 秒</item>
+    </plurals>
+    <plurals name="interval_minutes">
+        <item quantity="other">%d 分钟</item>
+    </plurals>
+    <plurals name="interval_hours">
+        <item quantity="other">%d 小时</item>
+    </plurals>
+    <plurals name="interval_unit_seconds">
+        <item quantity="other">秒</item>
+    </plurals>
+    <plurals name="interval_unit_minutes">
+        <item quantity="other">分钟</item>
+    </plurals>
+    <plurals name="interval_unit_hours">
+        <item quantity="other">小时</item>
+    </plurals>
+
+    <string name="language_system">跟随系统</string>
+
+    <string name="roots_title">从哪里获取图片？</string>
+    <string name="roots_title_no_usb">从哪里获取图片？（未检测到 U 盘）</string>
+    <string name="root_usb">U 盘 · %1$s</string>
+    <string name="root_internal">电视存储 · %1$s</string>
+    <string name="browse_back">返回</string>
+    <plurals name="browse_add_all">
+        <item quantity="other">添加此文件夹中的全部 %d 张图片</item>
+    </plurals>
+    <string name="browse_empty">此文件夹中没有图片 (.jpg .png .webp)</string>
+    <string name="toast_no_storage">无法读取任何存储。请尝试拔出 U 盘后重新插入。</string>
+    <string name="toast_perm_needed">需要存储权限才能从电视或 U 盘获取图片</string>
+    <plurals name="toast_copying">
+        <item quantity="other">正在复制 %d 张图片…</item>
+    </plurals>
+    <plurals name="toast_copied">
+        <item quantity="other">已添加 %d 张图片。请在“壁纸”中选择。</item>
+    </plurals>
+    <string name="toast_copied_partial">已添加 %1$d/%2$d 张图片，其余图片无法复制。</string>
+
+    <string name="cleanup_title">清理</string>
+    <string name="cleanup_hint">按已安装大小排序。在应用上按 OK 可打开系统信息页面，在那里可以清除缓存、强制停止或卸载。</string>
+    <string name="cleanup_storage">存储空间</string>
+    <string name="cleanup_free_of">剩余 %1$s / 共 %2$s</string>
+    <string name="toast_details_failed">无法打开 %1$s 的信息页面</string>
+</resources>

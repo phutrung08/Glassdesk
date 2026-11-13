@@ -1,6 +1,7 @@
 package io.github.phutrung08.glassdeck;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -26,6 +27,9 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 
 /**
  * Dọn dẹp: hai vòng bộ nhớ trong và RAM, rồi danh sách app xếp theo dung lượng cài đặt.
@@ -43,15 +47,19 @@ public class CleanupActivity extends Activity {
     private LinearLayout list;
     private int job;
     private String lastPkg;
+    private ExecutorService exec;
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(Lang.wrap(base));
+    }
 
     @Override
     protected void onCreate(Bundle b) {
         super.onCreate(b);
-        TextView hint = Ui.text(this,
-                "Sắp xếp theo dung lượng cài đặt. Bấm OK vào một ứng dụng để mở trang thông tin của hệ thống, "
-                        + "nơi bạn có thể xoá bộ nhớ đệm, buộc dừng hoặc gỡ cài đặt.",
-                14, Ui.SUB);
-        LinearLayout col = Ui.screen(this, "Dọn dẹp", hint);
+        exec = Executors.newSingleThreadExecutor();
+        TextView hint = Ui.text(this, getString(R.string.cleanup_hint), 14, Ui.SUB);
+        LinearLayout col = Ui.screen(this, getString(R.string.cleanup_title), hint);
 
         LinearLayout stats = new LinearLayout(this);
         stats.setOrientation(LinearLayout.HORIZONTAL);
@@ -62,8 +70,8 @@ public class CleanupActivity extends Activity {
         ramRing = new RingView(this);
         storageLabel = Ui.text(this, "", 15, Ui.SUB);
         ramLabel = Ui.text(this, "", 15, Ui.SUB);
-        stats.addView(statBlock("Bộ nhớ trong", storageRing, storageLabel), weight());
-        stats.addView(statBlock("RAM", ramRing, ramLabel), weight());
+        stats.addView(statBlock(getString(R.string.cleanup_storage), storageRing, storageLabel), weight());
+        stats.addView(statBlock(getString(R.string.cleanup_ram), ramRing, ramLabel), weight());
         LinearLayout.LayoutParams lpStats = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         lpStats.bottomMargin = Ui.dp(this, 14);
@@ -102,23 +110,34 @@ public class CleanupActivity extends Activity {
     @Override
     protected void onDestroy() {
         job++;
+        exec.shutdownNow();
         super.onDestroy();
     }
 
     private void load() {
         final int mine = ++job;
-        new Thread(() -> {
-            DeviceStats stats = DeviceStats.read(this);
-            List<Entry> found = queryApps();
-            runOnUiThread(() -> {
-                if (mine != job || isDestroyed()) return;
-                storageRing.setPercent(stats.storageUsedPercent());
-                ramRing.setPercent(stats.ramUsedPercent());
-                storageLabel.setText(stats.storageLabel());
-                ramLabel.setText(stats.ramLabel());
-                show(found);
-            });
-        }).start();
+        try {
+            exec.execute(() -> loadInBackground(mine));
+        } catch (RejectedExecutionException ignored) {
+            // Màn hình đang đóng.
+        }
+    }
+
+    private void loadInBackground(int mine) {
+        DeviceStats stats = DeviceStats.read(this);
+        List<Entry> found = queryApps();
+        runOnUiThread(() -> {
+            if (mine != job || isDestroyed()) return;
+            storageRing.setPercent(stats.storageUsedPercent());
+            ramRing.setPercent(stats.ramUsedPercent());
+            storageLabel.setText(freeOf(stats.storageFree, stats.storageTotal));
+            ramLabel.setText(freeOf(stats.ramFree, stats.ramTotal));
+            show(found);
+        });
+    }
+
+    private String freeOf(long free, long total) {
+        return getString(R.string.cleanup_free_of, Sizes.format(free), Sizes.format(total));
     }
 
     private List<Entry> queryApps() {
@@ -168,7 +187,7 @@ public class CleanupActivity extends Activity {
             startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
                     Uri.parse("package:" + e.pkg)));
         } catch (Exception ex) {
-            Toast.makeText(this, "Không mở được trang thông tin của " + e.label, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.toast_details_failed, e.label), Toast.LENGTH_SHORT).show();
         }
     }
 }

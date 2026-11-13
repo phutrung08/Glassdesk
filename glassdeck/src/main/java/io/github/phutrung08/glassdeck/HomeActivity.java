@@ -1,12 +1,12 @@
 package io.github.phutrung08.glassdeck;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -18,15 +18,12 @@ import android.media.tv.TvContract;
 import android.media.tv.TvInputInfo;
 import android.media.tv.TvInputManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.Manifest;
-import android.os.Build;
-import android.os.Environment;
-import android.os.storage.StorageManager;
-import android.os.storage.StorageVolume;
 import android.provider.Settings;
+import android.text.format.DateFormat;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -38,12 +35,10 @@ import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextClock;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import io.github.phutrung08.common.Sizes;
 import io.github.phutrung08.common.Ui;
 
 import java.io.File;
@@ -54,10 +49,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 
 /**
  * Màn hình chính: nền cố định, đồng hồ lớn, nút kính mờ ở góc trên,
  * và một khay kính mờ ở dưới chứa hàng app trượt ngang (thấy 6 app một lúc).
+ * Các bảng cài đặt nằm ở các lớp riêng (SettingsMenu, WallpaperPicker...) và nổi lên qua OverlayHost.
  */
 public class HomeActivity extends Activity {
     private static final class App {
@@ -71,17 +70,29 @@ public class HomeActivity extends Activity {
     private static final float FOCUS_SCALE = 1.12f;
     private static final DecelerateInterpolator EASE = new DecelerateInterpolator(1.6f);
     private static final String TIDYO = "io.github.phutrung08.tidyo";
+    private static final int SLIDE_FADE_MS = 700, PREVIEW_FADE_MS = 300, PREVIEW_DEBOUNCE_MS = 300;
 
-    private SharedPreferences prefs;
+    private Prefs prefs;
     private final List<App> apps = new ArrayList<>();
     private final Map<String, View> tiles = new HashMap<>();
     private FrameLayout root, content, tray;
     private LinearLayout pills, row;
     private HorizontalScrollView scroll;
     private TextView inputsPill, settingsPill;
-    private View overlay, focusBeforeOverlay;
+    private TextClock clock, ampm, date;
     private String lastFocused;
     private int tileW, tileH;
+
+    // Các bảng cài đặt
+    private ExecutorService exec;
+    private Thumbnails thumbs;
+    private OverlayHost overlays;
+    private SettingsMenu settings;
+    private WallpaperPicker wallpaperPicker;
+    private SliderPanel sliderPanel;
+    private IntervalPicker intervalPicker;
+    private LanguagePicker languagePicker;
+    private StorageBrowser browser;
 
     // Hình nền
     private Drawable defaultBg;
@@ -95,6 +106,12 @@ public class HomeActivity extends Activity {
     private float frostLuminance;
     private boolean frostDefault = true;
     private final Runnable nextSlide = this::showNextSlide;
+    // Tên file đang hiện trên màn hình ("" = nền mặc định) và lượt xem hình nền trong Cài đặt.
+    private String shownKey = "";
+    private boolean browsing;
+    private String browseStartKey;
+    private File previewFile;
+    private final Runnable previewRunnable = this::runPreview;
 
     private final BroadcastReceiver packageChanged = new BroadcastReceiver() {
         @Override public void onReceive(Context c, Intent i) { loadApps(); }
@@ -103,9 +120,17 @@ public class HomeActivity extends Activity {
     // ---------- Dựng giao diện ----------
 
     @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(Lang.wrap(base));
+    }
+
+    @Override
     protected void onCreate(Bundle b) {
         super.onCreate(b);
-        prefs = getSharedPreferences("home", MODE_PRIVATE);
+        prefs = new Prefs(this);
+        exec = Executors.newFixedThreadPool(2);
+        thumbs = new Thumbnails(() -> !isDestroyed());
+        GlassUi.setShadow(Levels.menuShadow(prefs.menuTransparency()));
 
         int screenW = getResources().getDisplayMetrics().widthPixels;
         int trayW = screenW - 2 * dp(48);
@@ -127,8 +152,8 @@ public class HomeActivity extends Activity {
 
         pills = new LinearLayout(this);
         pills.setOrientation(LinearLayout.HORIZONTAL);
-        inputsPill = pill("Cổng vào", v -> showInputs());
-        settingsPill = pill("Cài đặt", v -> showSettings());
+        inputsPill = pill(getString(R.string.pill_inputs), v -> showInputs());
+        settingsPill = pill(getString(R.string.pill_settings), v -> settings.show(0, true));
         pills.addView(inputsPill);
         LinearLayout.LayoutParams lpS = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -146,20 +171,28 @@ public class HomeActivity extends Activity {
         LinearLayout bottom = new LinearLayout(this);
         bottom.setOrientation(LinearLayout.VERTICAL);
 
-        TextClock clock = new TextClock(this);
-        clock.setFormat24Hour("HH:mm");
-        clock.setFormat12Hour("HH:mm");
+        LinearLayout clockRow = new LinearLayout(this);
+        clockRow.setOrientation(LinearLayout.HORIZONTAL);
+        clock = new TextClock(this);
         clock.setTextSize(TypedValue.COMPLEX_UNIT_SP, 84);
         clock.setTextColor(0xFFFFFFFF);
         clock.setTypeface(Ui.medium());
         clock.setIncludeFontPadding(false);
         clock.setPadding(dp(56), 0, 0, 0);
         clock.setShadowLayer(dp(8), 0, dp(1), 0x59000000);
-        clockBox.addView(clock);
+        clockRow.addView(clock);
+        // Chữ sáng/chiều nhỏ nằm cùng đường cơ sở với giờ; chỉ hiện khi dùng đồng hồ 12 giờ.
+        ampm = new TextClock(this);
+        ampm.setTextSize(TypedValue.COMPLEX_UNIT_SP, 26);
+        ampm.setTextColor(0xE0FFFFFF);
+        ampm.setTypeface(Ui.medium());
+        ampm.setIncludeFontPadding(false);
+        ampm.setPadding(dp(10), 0, 0, 0);
+        ampm.setShadowLayer(dp(6), 0, dp(1), 0x59000000);
+        clockRow.addView(ampm);
+        clockBox.addView(clockRow);
 
-        TextClock date = new TextClock(this);
-        date.setFormat24Hour("EEEE, d MMMM");
-        date.setFormat12Hour("EEEE, d MMMM");
+        date = new TextClock(this);
         date.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
         date.setTextColor(0xE0FFFFFF);
         date.setShadowLayer(dp(6), 0, dp(1), 0x73000000);
@@ -168,6 +201,7 @@ public class HomeActivity extends Activity {
         content.addView(clockBox, new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
                 Gravity.START | Gravity.CENTER_VERTICAL));
+        applyClock();
 
         // Khay kính: đứng yên, hàng app bên trong trượt ngang và bị cắt theo góc bo của khay.
         tray = new FrameLayout(this);
@@ -195,6 +229,14 @@ public class HomeActivity extends Activity {
         content.addView(bottom, lpBottom);
         setContentView(root);
 
+        overlays = new OverlayHost(this);
+        settings = new SettingsMenu(this);
+        wallpaperPicker = new WallpaperPicker(this);
+        sliderPanel = new SliderPanel(this);
+        intervalPicker = new IntervalPicker(this);
+        languagePicker = new LanguagePicker(this);
+        browser = new StorageBrowser(this);
+
         IntentFilter f = new IntentFilter();
         f.addAction(Intent.ACTION_PACKAGE_ADDED);
         f.addAction(Intent.ACTION_PACKAGE_REMOVED);
@@ -217,6 +259,8 @@ public class HomeActivity extends Activity {
         // Kết quả của luồng nền còn đang chạy trở thành cũ và sẽ bị bỏ qua.
         wallpaperJob++;
         appsJob++;
+        exec.shutdownNow();
+        thumbs.shutdown();
         super.onDestroy();
     }
 
@@ -224,7 +268,8 @@ public class HomeActivity extends Activity {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         // Bấm Home khi đang ở màn hình chính: đóng hộp thoại, quay về ô đầu tiên.
-        closeOverlay();
+        overlays.close();
+        endWallpaperBrowse(true);
         focusFirst();
     }
 
@@ -238,13 +283,13 @@ public class HomeActivity extends Activity {
     protected void onResume() {
         super.onResume();
         scheduleNextSlide();
-        if (overlay == null && getCurrentFocus() == null) focusKey(lastFocused);
+        if (!overlays.isOpen() && getCurrentFocus() == null) focusKey(lastFocused);
     }
 
     @Override
     public void onBackPressed() {
-        if (overlay != null) {
-            closeOverlay();
+        if (overlays.isOpen()) {
+            overlays.back();
             return;
         }
         View first = row.getChildCount() > 0 ? row.getChildAt(0) : null;
@@ -266,11 +311,67 @@ public class HomeActivity extends Activity {
         return t;
     }
 
+    // ---------- Phần các bảng cài đặt dùng chung ----------
+
+    Prefs prefs() { return prefs; }
+    OverlayHost overlays() { return overlays; }
+    Thumbnails thumbs() { return thumbs; }
+    SettingsMenu settings() { return settings; }
+    WallpaperPicker wallpaperPicker() { return wallpaperPicker; }
+    SliderPanel sliderPanel() { return sliderPanel; }
+    IntervalPicker intervalPicker() { return intervalPicker; }
+    LanguagePicker languagePicker() { return languagePicker; }
+    FrameLayout root() { return root; }
+    FrameLayout content() { return content; }
+
+    /** Mép dưới của hàng nút phía trên và mép trên của khay: bảng chỉ được nằm giữa hai mép này. */
+    int pillsBottom() { return pills.getBottom(); }
+    int trayTop() { return ((View) tray.getParent()).getTop() + tray.getTop(); }
+
+    void focusLast() {
+        focusKey(lastFocused);
+    }
+
+    void toast(int res) {
+        Toast.makeText(this, res, Toast.LENGTH_SHORT).show();
+    }
+
+    void toast(CharSequence text) {
+        Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
+    }
+
+    void toastLong(int res) {
+        Toast.makeText(this, res, Toast.LENGTH_LONG).show();
+    }
+
+    /** Chạy việc nặng ở luồng nền; sau khi màn hình huỷ thì bỏ qua. */
+    void runBackground(Runnable r) {
+        try {
+            exec.execute(r);
+        } catch (RejectedExecutionException ignored) {
+            // Màn hình đang đóng.
+        }
+    }
+
+    /** Đặt lại đồng hồ theo thiết lập 12/24 giờ và ngôn ngữ (cả dòng ngày). */
+    void applyClock() {
+        boolean h24 = prefs.clock24h();
+        String f = h24 ? "HH:mm" : "h:mm";
+        clock.setFormat24Hour(f);
+        clock.setFormat12Hour(f);
+        ampm.setFormat24Hour("a");
+        ampm.setFormat12Hour("a");
+        ampm.setVisibility(h24 ? View.GONE : View.VISIBLE);
+        String pattern = DateFormat.getBestDateTimePattern(Lang.current(this), "EEEEdMMMM");
+        date.setFormat24Hour(pattern);
+        date.setFormat12Hour(pattern);
+    }
+
     // ---------- Danh sách app ----------
 
     private void loadApps() {
         final int job = ++appsJob;
-        new Thread(() -> {
+        runBackground(() -> {
             PackageManager pm = getPackageManager();
             Intent q = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LEANBACK_LAUNCHER);
             List<App> found = new ArrayList<>();
@@ -298,21 +399,13 @@ public class HomeActivity extends Activity {
                 apps.addAll(found);
                 rebuildRow(lastFocused);
             });
-        }).start();
-    }
-
-    private List<String> savedOrder() {
-        return AppOrder.parse(prefs.getString("order", ""));
-    }
-
-    private Set<String> hidden() {
-        return new HashSet<>(prefs.getStringSet("hidden", new HashSet<String>()));
+        });
     }
 
     /** App đang hiện, theo thứ tự đã lưu; app chưa có trong thứ tự xếp sau. */
     private List<App> visibleSorted() {
-        Set<String> hide = hidden();
-        List<String> order = savedOrder();
+        Set<String> hide = prefs.hidden();
+        List<String> order = AppOrder.parse(prefs.order());
         List<App> out = new ArrayList<>();
         for (App a : apps) if (!hide.contains(a.key())) out.add(a);
         Collections.sort(out, (x, y) -> AppOrder.compare(order,
@@ -324,14 +417,26 @@ public class HomeActivity extends Activity {
     private void saveOrder(List<App> list) {
         List<String> keys = new ArrayList<>();
         for (App a : list) keys.add(a.key());
-        prefs.edit().putString("order", AppOrder.join(keys)).apply();
+        prefs.setOrder(AppOrder.join(keys));
     }
 
     private void rebuildRow(String focusKey) {
         row.removeAllViews();
         tiles.clear();
         for (App a : visibleSorted()) row.addView(makeTile(a));
-        row.post(() -> { if (overlay == null) focusKey(focusKey); });
+        row.post(() -> { if (!overlays.isOpen()) focusKey(focusKey); });
+    }
+
+    /** Hiện lại mọi app đã ẩn (từ menu Cài đặt). */
+    void restoreHiddenApps() {
+        int n = prefs.hidden().size();
+        if (n == 0) {
+            toast(R.string.toast_no_hidden);
+            return;
+        }
+        prefs.setHidden(new HashSet<String>());
+        rebuildRow(lastFocused);
+        toast(getResources().getQuantityString(R.plurals.toast_hidden_restored, n, n));
     }
 
     private void focusFirst() {
@@ -443,156 +548,46 @@ public class HomeActivity extends Activity {
                     .setComponent(a.cn)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED));
         } catch (Exception e) {
-            Toast.makeText(this, "Không mở được " + a.label, Toast.LENGTH_SHORT).show();
+            toast(getString(R.string.toast_cannot_open, a.label));
         }
     }
 
-    // ---------- Hộp thoại kính ----------
-
-    /** ScrollView co theo nội dung nhưng không cao quá giới hạn; quá thì cuộn. */
-    private static final class MaxHeightScroll extends ScrollView {
-        int maxHeight = Integer.MAX_VALUE;
-        MaxHeightScroll(Context c) { super(c); }
-        @Override protected void onMeasure(int w, int h) {
-            super.onMeasure(w, MeasureSpec.makeMeasureSpec(maxHeight, MeasureSpec.AT_MOST));
-        }
-    }
-
-    /**
-     * Hộp thoại nằm chính giữa khoảng trống giữa hàng nút phía trên và khay app,
-     * không bao giờ đè lên hai phần đó. Danh sách dài hơn thì cuộn, có thanh cuộn luôn hiện.
-     */
-    private void showMenu(String title, String[] items, Ui.Pick onPick) {
-        showMenu(title, items, 0, true, onPick);
-    }
-
-    /** @param focusIndex dòng được chọn sẵn; @param animate false khi mở lại cùng một menu (danh sách đánh dấu). */
-    private void showMenu(String title, String[] items, int focusIndex, boolean animate, Ui.Pick onPick) {
-        if (overlay != null) closeOverlay();
-        focusBeforeOverlay = getCurrentFocus();
-        final long shownAt = android.os.SystemClock.uptimeMillis();
-
-        FrameLayout scrim = new FrameLayout(this);
-        scrim.setBackgroundColor(0x66000000);
-
-        int top = pills.getBottom();
-        int bottom = ((View) tray.getParent()).getTop() + tray.getTop();
-        int gap = dp(20);
-
-        LinearLayout panel = new LinearLayout(this);
-        panel.setOrientation(LinearLayout.VERTICAL);
-        panel.setBackground(new Frost.Glass(panel, dp(22), true, dp(1)));
-        panel.setPadding(dp(12), dp(16), dp(10), dp(12));
-
-        TextView head = Ui.text(this, title, 19, Ui.WHITE);
-        head.setTypeface(Ui.medium());
-        head.setPadding(dp(14), 0, dp(14), dp(10));
-        panel.addView(head);
-        head.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-
-        MaxHeightScroll list = new MaxHeightScroll(this);
-        list.maxHeight = Math.max(dp(90), bottom - top - 2 * gap - head.getMeasuredHeight() - dp(28));
-        list.setVerticalScrollBarEnabled(true);
-        list.setScrollbarFadingEnabled(false);
-        if (Build.VERSION.SDK_INT >= 29) {
-            list.setVerticalScrollbarThumbDrawable(Ui.solid(this, 0xBFFFFFFF, 2));
-            list.setVerticalScrollbarTrackDrawable(Ui.solid(this, 0x24FFFFFF, 2));
-        }
-        list.setScrollBarSize(dp(4));
-        list.setScrollBarStyle(View.SCROLLBARS_INSIDE_INSET);
-        list.setVerticalFadingEdgeEnabled(true);
-        list.setFadingEdgeLength(dp(28));
-        list.setOverScrollMode(View.OVER_SCROLL_NEVER);
-
-        LinearLayout col = new LinearLayout(this);
-        col.setOrientation(LinearLayout.VERTICAL);
-        col.setPadding(0, 0, dp(8), 0);
-        View first = null;
-        for (int i = 0; i < items.length; i++) {
-            final int index = i;
-            TextView it = Ui.text(this, items[i], 17, Ui.WHITE);
-            it.setTextColor(Ui.focusColor(Ui.INK, Ui.WHITE));
-            it.setBackground(Ui.focusBackground(this, Ui.solid(this, 0x00000000, 12), 12));
-            it.setPadding(dp(14), dp(11), dp(14), dp(11));
-            it.setFocusable(true);
-            it.setClickable(true);
-            it.setOnClickListener(v -> {
-                // Bỏ qua lần bấm lọt sang từ hộp thoại vừa đóng (vd. hộp thoại xin quyền của hệ thống).
-                if (animate && android.os.SystemClock.uptimeMillis() - shownAt < 350) return;
-                closeOverlay();
-                onPick.onPick(index);
-            });
-            col.addView(it, new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-            if (first == null || i == focusIndex) first = it;
-        }
-        list.addView(col);
-        panel.addView(list, new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-
-        // Vùng giữa hàng nút và khay; hộp thoại canh giữa trong vùng này.
-        FrameLayout zone = new FrameLayout(this);
-        zone.addView(panel, new FrameLayout.LayoutParams(
-                root.getWidth() * 46 / 100, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
-        FrameLayout.LayoutParams lpZone = new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, bottom - top - 2 * gap);
-        lpZone.topMargin = top + gap;
-        scrim.addView(zone, lpZone);
-
-        content.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
-        overlay = scrim;
-        root.addView(scrim, new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        if (animate) {
-            scrim.setAlpha(0f);
-            scrim.animate().alpha(1f).setDuration(160).start();
-        }
-        if (first != null) first.requestFocus();
-    }
-
-    private void closeOverlay() {
-        if (overlay == null) return;
-        root.removeView(overlay);
-        overlay = null;
-        content.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
-        if (focusBeforeOverlay != null && focusBeforeOverlay.isAttachedToWindow()) focusBeforeOverlay.requestFocus();
-        else focusKey(lastFocused);
-        focusBeforeOverlay = null;
-    }
-
-    // ---------- Nội dung các menu ----------
+    // ---------- Menu app và cổng vào ----------
 
     private void showAppMenu(App a) {
-        String[] items = {"Đưa lên đầu", "Chuyển sang trái", "Chuyển sang phải", "Ẩn khỏi màn hình chính", "Thông tin ứng dụng"};
-        showMenu(a.label, items, which -> {
-            List<App> list = visibleSorted();
-            int i = -1;
-            for (int k = 0; k < list.size(); k++) if (list.get(k).key().equals(a.key())) i = k;
-            if (i < 0) return;
-            switch (which) {
-                case 0: list.add(0, list.remove(i)); break;
-                case 1: if (i > 0) Collections.swap(list, i, i - 1); break;
-                case 2: if (i < list.size() - 1) Collections.swap(list, i, i + 1); break;
-                case 3: {
-                    Set<String> h = hidden();
-                    h.add(a.key());
-                    prefs.edit().putStringSet("hidden", h).apply();
-                    lastFocused = null;
-                    rebuildRow(null);
-                    return;
-                }
-                default:
-                    try {
-                        startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                                Uri.parse("package:" + a.cn.getPackageName())));
-                    } catch (Exception e) {
-                        Toast.makeText(this, "Không mở được trang thông tin", Toast.LENGTH_SHORT).show();
-                    }
-                    return;
+        GlassMenu menu = new GlassMenu(this, a.label);
+        menu.add(new GlassMenu.Row(getString(R.string.app_menu_to_front), () -> moveApp(a, 0)));
+        menu.add(new GlassMenu.Row(getString(R.string.app_menu_move_left), () -> moveApp(a, 1)));
+        menu.add(new GlassMenu.Row(getString(R.string.app_menu_move_right), () -> moveApp(a, 2)));
+        menu.add(new GlassMenu.Row(getString(R.string.app_menu_hide), () -> {
+            Set<String> h = prefs.hidden();
+            h.add(a.key());
+            prefs.setHidden(h);
+            lastFocused = null;
+            rebuildRow(null);
+        }));
+        menu.add(new GlassMenu.Row(getString(R.string.app_menu_info), () -> {
+            try {
+                startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                        Uri.parse("package:" + a.cn.getPackageName())));
+            } catch (Exception e) {
+                toast(R.string.toast_info_failed);
             }
-            saveOrder(list);
-            rebuildRow(a.key());
-        });
+        }));
+        menu.show();
+    }
+
+    /** @param how 0 = đưa lên đầu, 1 = sang trái, 2 = sang phải */
+    private void moveApp(App a, int how) {
+        List<App> list = visibleSorted();
+        int i = -1;
+        for (int k = 0; k < list.size(); k++) if (list.get(k).key().equals(a.key())) i = k;
+        if (i < 0) return;
+        if (how == 0) list.add(0, list.remove(i));
+        else if (how == 1 && i > 0) Collections.swap(list, i, i - 1);
+        else if (how == 2 && i < list.size() - 1) Collections.swap(list, i, i + 1);
+        saveOrder(list);
+        rebuildRow(a.key());
     }
 
     private void showInputs() {
@@ -613,99 +608,36 @@ public class HomeActivity extends Activity {
         Collections.sort(inputs, (x, y) ->
                 String.valueOf(x.loadLabel(this)).compareToIgnoreCase(String.valueOf(y.loadLabel(this))));
         if (inputs.isEmpty()) {
-            Toast.makeText(this, "Tivi không cung cấp danh sách cổng vào. Hãy dùng nút Input trên remote.",
-                    Toast.LENGTH_LONG).show();
+            toastLong(R.string.toast_no_inputs);
             return;
         }
-        String[] names = new String[inputs.size()];
-        for (int i = 0; i < names.length; i++) {
-            TvInputInfo info = inputs.get(i);
+        GlassMenu menu = new GlassMenu(this, getString(R.string.pill_inputs));
+        for (TvInputInfo info : inputs) {
             CharSequence custom = info.loadCustomLabel(this);
-            names[i] = String.valueOf(custom != null ? custom : info.loadLabel(this));
-        }
-        showMenu("Cổng vào", names, which -> {
-            TvInputInfo info = inputs.get(which);
-            Uri uri = info.isPassthroughInput()
-                    ? TvContract.buildChannelUriForPassthroughInput(info.getId())
-                    : TvContract.Channels.CONTENT_URI;
-            try {
-                startActivity(new Intent(Intent.ACTION_VIEW, uri).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-            } catch (Exception e) {
-                Toast.makeText(this, "Không chuyển được sang " + names[which], Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    private void showSettings() {
-        String[] items = {
-                "Cài đặt tivi",
-                "Dọn dẹp",
-                "Tidyo TV · dọn dẹp tivi",
-                "Hình nền",
-                "Độ trong suốt: " + transparency() + "%",
-                "Hiện lại ứng dụng đã ẩn (" + hidden().size() + ")"
-        };
-        showMenu("Cài đặt", items, which -> {
-            switch (which) {
-                case 0:
-                    try {
-                        startActivity(new Intent(Settings.ACTION_SETTINGS));
-                    } catch (Exception e) {
-                        Toast.makeText(this, "Không mở được Cài đặt", Toast.LENGTH_SHORT).show();
-                    }
-                    break;
-                case 1:
-                    startActivity(new Intent(this, CleanupActivity.class));
-                    break;
-                case 2: {
-                    Intent i = getPackageManager().getLeanbackLaunchIntentForPackage(TIDYO);
-                    if (i == null) {
-                        Toast.makeText(this, "Chưa cài Tidyo TV", Toast.LENGTH_LONG).show();
-                    } else {
-                        startActivity(i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-                    }
-                    break;
+            final String name = String.valueOf(custom != null ? custom : info.loadLabel(this));
+            menu.add(new GlassMenu.Row(name, () -> {
+                Uri uri = info.isPassthroughInput()
+                        ? TvContract.buildChannelUriForPassthroughInput(info.getId())
+                        : TvContract.Channels.CONTENT_URI;
+                try {
+                    startActivity(new Intent(Intent.ACTION_VIEW, uri).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                } catch (Exception e) {
+                    toast(getString(R.string.toast_input_switch_failed, name));
                 }
-                case 3:
-                    showWallpaperMenu();
-                    break;
-                case 4:
-                    showTransparencyMenu();
-                    break;
-                default:
-                    prefs.edit().remove("hidden").apply();
-                    rebuildRow(lastFocused);
-            }
-        });
-    }
-
-    // ---------- Độ trong suốt ----------
-
-    private int transparency() {
-        return prefs.getInt("transparency", 60);
-    }
-
-    private static String mark(boolean on) {
-        return on ? "●  " : "○  ";
-    }
-
-    private void showTransparencyMenu() {
-        final int[] levels = {0, 20, 40, 60, 80, 100};
-        int current = transparency(), focus = 0;
-        String[] items = new String[levels.length];
-        for (int i = 0; i < levels.length; i++) {
-            String note = levels[i] == 0 ? " · đậm nhất" :levels[i] == 100 ? " · trong nhất" : "";
-            items[i] = mark(levels[i] == current) + levels[i] + "%" + note;
-            if (levels[i] == current) focus = i;
+            }));
         }
-        showMenu("Độ trong suốt của kính", items, focus, true, which -> {
-            prefs.edit().putInt("transparency", levels[which]).apply();
-            refreshFrost();
-        });
+        menu.show();
     }
 
-    private void refreshFrost() {
-        if (frostSource != null) Frost.update(frostSource, frostLuminance, transparency(), frostDefault);
+    // ---------- Kính mờ ----------
+
+    /** Cập nhật kính khay/nút (theo "Độ trong của khay và nút") và nền menu (theo "Độ trong của menu"). */
+    void refreshFrost() {
+        int menuT = prefs.menuTransparency();
+        GlassUi.setShadow(Levels.menuShadow(menuT));
+        if (frostSource != null) {
+            Frost.update(frostSource, frostLuminance, prefs.transparency(), menuT, frostDefault);
+        }
     }
 
     // ---------- Hình nền ----------
@@ -719,146 +651,108 @@ public class HomeActivity extends Activity {
         return v;
     }
 
-    private String wallpaperMode() {
-        return prefs.getString("wp_mode", "default");
+    /** Tên file của hình đang được dùng ("" = nền mặc định); trong lúc xem hình nền là hình dùng trước khi xem. */
+    String appliedKey() {
+        return browseStartKey != null ? browseStartKey : shownKey;
     }
 
-    private void showWallpaperMenu() {
-        String mode = wallpaperMode();
-        int interval = prefs.getInt("wp_interval", Intervals.DEFAULT);
-        int count = Wallpapers.list(this).size();
-        String[] items = {
-                mark(mode.equals("default")) + "Nền mặc định",
-                mark(mode.equals("single")) + "Một hình cố định",
-                mark(mode.equals("multi")) + "Nhiều hình, tự đổi",
-                "Thời gian đổi hình: " + Intervals.label(interval),
-                "Thêm hình từ tivi hoặc USB · đang có " + count + " hình"
-        };
-        showMenu("Hình nền", items, which -> {
-            if (which == 0) {
-                prefs.edit().putString("wp_mode", "default").apply();
-                applyWallpaper(true);
-            } else if (which == 1) {
-                pickSingle();
-            } else if (which == 2) {
-                pickMulti(0, true);
-            } else if (which == 3) {
-                showIntervalMenu();
-            } else {
-                browseStart();
-            }
-        });
+    /** Bắt đầu xem hình nền trong Cài đặt: tạm dừng tự đổi và nhớ hình đang dùng để khôi phục. */
+    void beginWallpaperBrowse() {
+        if (browsing) return;
+        browsing = true;
+        browseStartKey = shownKey;
+        wallpaperJob++;   // việc nạp hình tự đổi đang dở trở thành cũ
+        handler.removeCallbacks(nextSlide);
     }
 
-    private boolean noWallpapers(List<File> files) {
-        if (!files.isEmpty()) return false;
-        Toast.makeText(this, "Chưa có hình nào. Chọn \"Thêm hình từ tivi hoặc USB\" để thêm.",
-                Toast.LENGTH_LONG).show();
-        return true;
+    /**
+     * Kết thúc lượt xem.
+     * @param restore true: không chọn gì mới, trả hình nền về như lúc bắt đầu. false: người dùng sẽ tự áp dụng hình mới.
+     */
+    void endWallpaperBrowse(boolean restore) {
+        if (!browsing) return;
+        browsing = false;
+        handler.removeCallbacks(previewRunnable);
+        wallpaperJob++;   // bỏ kết quả xem trước chưa kịp hiện
+        String start = browseStartKey;
+        browseStartKey = null;
+        if (!restore) return;
+        if (!shownKey.equals(start)) applyWallpaper(true);
+        else scheduleNextSlide();
     }
 
-    private void pickSingle() {
-        List<File> files = Wallpapers.list(this);
-        if (noWallpapers(files)) return;
-        String current = prefs.getString("wp_single", "");
-        String[] items = new String[files.size()];
-        int focus = 0;
-        for (int i = 0; i < items.length; i++) {
-            boolean on = wallpaperMode().equals("single") && files.get(i).getName().equals(current);
-            items[i] = mark(on) + files.get(i).getName();
-            if (on) focus = i;
+    /** Xem trước một hình (null = nền mặc định) phía sau bảng, sau 300 ms đứng yên. */
+    void previewWallpaper(File f) {
+        handler.removeCallbacks(previewRunnable);
+        if ((f == null ? "" : f.getName()).equals(shownKey)) {
+            wallpaperJob++;   // đang xem đúng hình này rồi; bỏ kết quả của hình trước đó chưa kịp hiện
+            return;
         }
-        showMenu("Chọn một hình", items, focus, true, which -> {
-            prefs.edit().putString("wp_mode", "single").putString("wp_single", files.get(which).getName()).apply();
-            applyWallpaper(true);
-        });
+        previewFile = f;
+        handler.postDelayed(previewRunnable, PREVIEW_DEBOUNCE_MS);
     }
 
-    /** Danh sách đánh dấu: bấm OK để chọn hoặc bỏ chọn từng hình, dòng cuối để xác nhận. */
-    private void pickMulti(int focusIndex, boolean animate) {
-        List<File> files = Wallpapers.list(this);
-        if (noWallpapers(files)) return;
-        Set<String> chosen = new HashSet<>(prefs.getStringSet("wp_multi", new HashSet<String>()));
-        String[] items = new String[files.size() + 1];
-        int n = 0;
-        for (int i = 0; i < files.size(); i++) {
-            boolean on = chosen.contains(files.get(i).getName());
-            if (on) n++;
-            items[i] = mark(on) + files.get(i).getName();
-        }
-        items[files.size()] = "Xong · đã chọn " + n + " hình";
-        showMenu("Chọn nhiều hình", items, focusIndex, animate, which -> {
-            if (which < files.size()) {
-                String name = files.get(which).getName();
-                if (!chosen.remove(name)) chosen.add(name);
-                prefs.edit().putStringSet("wp_multi", chosen).apply();
-                pickMulti(which, false);
-            } else if (chosen.isEmpty()) {
-                Toast.makeText(this, "Chưa chọn hình nào nên giữ nguyên hình nền hiện tại", Toast.LENGTH_SHORT).show();
-            } else {
-                prefs.edit().putString("wp_mode", "multi").apply();
-                applyWallpaper(true);
-            }
-        });
-    }
-
-    private void showIntervalMenu() {
-        int current = prefs.getInt("wp_interval", Intervals.DEFAULT), focus = 0;
-        String[] items = new String[Intervals.VALUES.length];
-        for (int i = 0; i < Intervals.VALUES.length; i++) {
-            items[i] = mark(Intervals.VALUES[i] == current) + Intervals.label(Intervals.VALUES[i]);
-            if (Intervals.VALUES[i] == current) focus = i;
-        }
-        showMenu("Thời gian đổi hình", items, focus, true, which -> {
-            prefs.edit().putInt("wp_interval", Intervals.VALUES[which]).apply();
-            scheduleNextSlide();
-        });
+    private void runPreview() {
+        if (!browsing) return;
+        if (previewFile == null) showDefaultWallpaper(PREVIEW_FADE_MS);
+        else loadImage(previewFile, PREVIEW_FADE_MS, false);
     }
 
     /** Đọc thiết lập và hiện hình nền tương ứng. */
-    private void applyWallpaper(boolean animate) {
+    void applyWallpaper(boolean animate) {
         handler.removeCallbacks(nextSlide);
         slides.clear();
-        String mode = wallpaperMode();
+        String mode = prefs.wallpaperMode();
         List<File> files = Wallpapers.list(this);
-        if (mode.equals("single")) {
-            String name = prefs.getString("wp_single", "");
+        if (mode.equals(Prefs.MODE_SINGLE)) {
+            String name = prefs.wallpaperSingle();
             for (File f : files) if (f.getName().equals(name)) slides.add(f);
-        } else if (mode.equals("multi")) {
-            Set<String> chosen = prefs.getStringSet("wp_multi", new HashSet<String>());
+        } else if (mode.equals(Prefs.MODE_MULTI)) {
+            Set<String> chosen = prefs.wallpaperMulti();
             for (File f : files) if (chosen.contains(f.getName())) slides.add(f);
         }
         if (slides.isEmpty()) {
             // Nền mặc định, hoặc hình đã chọn không còn trên tivi.
-            wallpaperJob++;
-            showWallpaper(null, Wallpapers.small(defaultBg, Frost.screenW, Frost.screenH), animate);
+            showDefaultWallpaper(animate ? SLIDE_FADE_MS : 0);
             return;
         }
         slideIndex = 0;
         loadSlide(animate);
     }
 
+    private void showDefaultWallpaper(int ms) {
+        wallpaperJob++;
+        shownKey = "";
+        showWallpaper(null, Wallpapers.small(defaultBg, Frost.screenW, Frost.screenH), ms);
+    }
+
     private void loadSlide(boolean animate) {
+        loadImage(slides.get(slideIndex % slides.size()), animate ? SLIDE_FADE_MS : 0, true);
+    }
+
+    /** Nạp một hình ở luồng nền rồi hiện bằng cách mờ dần; kết quả cũ (đã có việc mới hơn) bị bỏ. */
+    private void loadImage(File f, int fadeMs, boolean scheduleAfter) {
         final int job = ++wallpaperJob;
-        final File f = slides.get(slideIndex % slides.size());
-        new Thread(() -> {
+        runBackground(() -> {
             Bitmap screen = Wallpapers.loadForScreen(f, Frost.screenW, Frost.screenH);
             Bitmap blur = screen == null ? null : Wallpapers.blurred(screen);
             runOnUiThread(() -> {
                 if (job != wallpaperJob || isDestroyed()) return;
                 if (screen == null) {
-                    Toast.makeText(this, "Không đọc được hình " + f.getName(), Toast.LENGTH_SHORT).show();
+                    toast(getString(R.string.toast_wp_read_failed, WallpaperNames.display(this, f.getName())));
                 } else {
-                    showWallpaper(screen, blur, animate);
+                    showWallpaper(screen, blur, fadeMs);
+                    shownKey = f.getName();
                 }
-                scheduleNextSlide();
+                if (scheduleAfter) scheduleNextSlide();
             });
-        }).start();
+        });
     }
 
-    private void scheduleNextSlide() {
+    void scheduleNextSlide() {
         handler.removeCallbacks(nextSlide);
-        if (slides.size() > 1) handler.postDelayed(nextSlide, prefs.getInt("wp_interval", Intervals.DEFAULT) * 1000L);
+        if (browsing) return;
+        if (slides.size() > 1) handler.postDelayed(nextSlide, prefs.interval() * 1000L);
     }
 
     private void showNextSlide() {
@@ -868,8 +762,7 @@ public class HomeActivity extends Activity {
     }
 
     /** @param screen hình vừa khít màn hình, hoặc null để về nền mặc định; @param blur bản mờ cho kính. */
-    private void showWallpaper(Bitmap screen, Bitmap blur, boolean animate) {
-        int ms = animate ? 700 : 0;
+    private void showWallpaper(Bitmap screen, Bitmap blur, int ms) {
         // Huỷ chuyển động đang dở của lần trước để các hành động kết thúc cũ không xoá nhầm hình mới.
         wallA.animate().cancel();
         wallB.animate().cancel();
@@ -913,12 +806,13 @@ public class HomeActivity extends Activity {
                 ? Manifest.permission.READ_MEDIA_IMAGES : Manifest.permission.READ_EXTERNAL_STORAGE;
     }
 
-    private void browseStart() {
+    /** Mở trình duyệt bộ nhớ; chưa có quyền thì xin trước. */
+    void browseStart() {
         if (checkSelfPermission(storagePermission()) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{storagePermission()}, REQ_STORAGE);
             return;
         }
-        showRoots();
+        browser.showRoots();
     }
 
     @Override
@@ -926,109 +820,10 @@ public class HomeActivity extends Activity {
         if (code != REQ_STORAGE) return;
         if (checkSelfPermission(storagePermission()) == PackageManager.PERMISSION_GRANTED) {
             // Đợi hộp thoại hệ thống đóng hẳn rồi mới hiện danh sách.
-            handler.postDelayed(this::showRoots, 300);
+            handler.postDelayed(browser::showRoots, 300);
         } else {
-            Toast.makeText(this, "Cần quyền đọc bộ nhớ để lấy hình trong tivi hoặc USB", Toast.LENGTH_LONG).show();
+            toastLong(R.string.toast_perm_needed);
         }
-    }
-
-    private static File volumeDir(StorageVolume v) {
-        if (Build.VERSION.SDK_INT >= 30) return v.getDirectory();
-        if (v.isPrimary()) return Environment.getExternalStorageDirectory();
-        return v.getUuid() == null ? null : new File("/storage/" + v.getUuid());
-    }
-
-    /** Danh sách nơi lấy hình: bộ nhớ trong của tivi và các USB đang cắm. */
-    private void showRoots() {
-        List<File> dirs = new ArrayList<>();
-        List<String> names = new ArrayList<>();
-        StorageManager sm = (StorageManager) getSystemService(Context.STORAGE_SERVICE);
-        for (StorageVolume v : sm.getStorageVolumes()) {
-            String state = v.getState();
-            if (!Environment.MEDIA_MOUNTED.equals(state) && !Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) continue;
-            File d = volumeDir(v);
-            if (d == null || !d.canRead()) continue;
-            dirs.add(d);
-            names.add((v.isRemovable() ? "USB · " : "Bộ nhớ tivi · ") + v.getDescription(this));
-        }
-        if (dirs.isEmpty()) {
-            Toast.makeText(this, "Không đọc được bộ nhớ nào. Thử rút USB ra cắm lại.", Toast.LENGTH_LONG).show();
-            return;
-        }
-        boolean hasUsb = false;
-        for (String n : names) if (n.startsWith("USB")) hasUsb = true;
-        String title = hasUsb ? "Lấy hình từ đâu?" : "Lấy hình từ đâu? (chưa thấy USB)";
-        showMenu(title, names.toArray(new String[0]), which -> browse(dirs.get(which), dirs.get(which), names.get(which), 0));
-    }
-
-    /**
-     * Duyệt một thư mục: thư mục con trước, hình sau. Bấm OK vào hình để chép vào bộ hình nền
-     * (dấu ✓ là hình đã có). Hình được chép vào tivi nên rút USB ra vẫn dùng được.
-     */
-    private void browse(File root, File dir, String rootLabel, int focus) {
-        List<File> folders = new ArrayList<>(), images = new ArrayList<>();
-        File[] all = dir.listFiles();
-        if (all != null) {
-            for (File f : all) {
-                if (f.getName().startsWith(".")) continue;
-                if (f.isDirectory()) {
-                    if (!(dir.equals(root) && f.getName().equals("Android"))) folders.add(f);
-                } else if (Wallpapers.isImage(f)) {
-                    images.add(f);
-                }
-            }
-        }
-        Collections.sort(folders, (x, y) -> x.getName().compareToIgnoreCase(y.getName()));
-        Collections.sort(images, (x, y) -> x.getName().compareToIgnoreCase(y.getName()));
-
-        List<String> items = new ArrayList<>();
-        List<Runnable> actions = new ArrayList<>();
-        if (dir.equals(root)) {
-            items.add("↑  Chọn nơi khác");
-            actions.add(this::showRoots);
-        } else {
-            items.add("↑  Lên thư mục trên");
-            File parent = dir.getParentFile();
-            actions.add(() -> browse(root, parent, rootLabel, 0));
-        }
-        if (images.size() > 1) {
-            items.add("Thêm cả " + images.size() + " hình trong thư mục này");
-            actions.add(() -> copyImages(images, () -> browse(root, dir, rootLabel, 1)));
-        }
-        for (File f : folders) {
-            items.add("▸  " + f.getName());
-            actions.add(() -> browse(root, f, rootLabel, 0));
-        }
-        for (File f : images) {
-            final int index = items.size();
-            items.add((Wallpapers.alreadyAdded(this, f) ? "✓  " : "+  ") + f.getName() + "  · " + Sizes.format(f.length()));
-            actions.add(() -> copyImages(Collections.singletonList(f), () -> browse(root, dir, rootLabel, index)));
-        }
-        if (folders.isEmpty() && images.isEmpty()) {
-            items.add("Thư mục này không có hình (.jpg .png .webp)");
-            actions.add(() -> browse(root, dir, rootLabel, 0));
-        }
-
-        String title = dir.equals(root) ? rootLabel : dir.getName();
-        showMenu(title, items.toArray(new String[0]), Math.min(focus, items.size() - 1), focus == 0,
-                which -> actions.get(which).run());
-    }
-
-    private void copyImages(List<File> files, Runnable then) {
-        if (files.size() > 1) Toast.makeText(this, "Đang chép " + files.size() + " hình…", Toast.LENGTH_SHORT).show();
-        new Thread(() -> {
-            int ok = 0;
-            for (File f : files) if (Wallpapers.copyIn(this, f)) ok++;
-            final int done = ok;
-            runOnUiThread(() -> {
-                if (isDestroyed()) return;
-                String msg = done == files.size()
-                        ? "Đã thêm " + done + " hình. Vào Một hình cố định hoặc Nhiều hình để dùng."
-                        : "Đã thêm " + done + "/" + files.size() + " hình, số còn lại không chép được.";
-                Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
-                then.run();
-            });
-        }).start();
     }
 
     private boolean isDefaultHome() {

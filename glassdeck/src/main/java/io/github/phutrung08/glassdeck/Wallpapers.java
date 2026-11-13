@@ -140,8 +140,14 @@ final class Wallpapers {
     /** Vẽ một drawable (nền mặc định) ra ảnh nhỏ để dùng chung đường xử lý với hình nền. */
     static Bitmap small(Drawable d, int screenW, int screenH) {
         Bitmap b = Bitmap.createBitmap(Math.max(1, screenW / 8), Math.max(1, screenH / 8), Bitmap.Config.ARGB_8888);
-        d.setBounds(0, 0, b.getWidth(), b.getHeight());
-        d.draw(new Canvas(b));
+        // Vẽ bằng bản sao: đổi kích thước trực tiếp trên drawable đang làm nền màn hình
+        // sẽ khiến nền chỉ còn một ô nhỏ ở góc trên trái.
+        Drawable.ConstantState state = d.getConstantState();
+        Drawable copy = state != null ? state.newDrawable().mutate() : d;
+        android.graphics.Rect old = copy == d ? new android.graphics.Rect(d.getBounds()) : null;
+        copy.setBounds(0, 0, b.getWidth(), b.getHeight());
+        copy.draw(new Canvas(b));
+        if (old != null) d.setBounds(old);
         return b;
     }
 

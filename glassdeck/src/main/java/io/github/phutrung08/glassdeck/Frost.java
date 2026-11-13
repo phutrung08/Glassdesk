@@ -20,7 +20,7 @@ import java.util.List;
 
 /**
  * Kính mờ: mỗi tấm kính vẽ đúng phần hình nền đã làm mờ nằm phía sau nó,
- * phủ thêm một lớp màu (sáng hoặc tối) với độ đậm theo thiết lập "Độ trong suốt".
+ * phủ thêm một lớp màu (sáng hoặc tối) với độ đậm theo "Độ trong của khay và nút" (khay, nút) hoặc "Độ trong của menu" (hộp thoại).
  */
 final class Frost {
     static int screenW = 1920, screenH = 1080;
@@ -36,10 +36,11 @@ final class Frost {
     /**
      * @param blur         bản mờ của hình nền đang hiện
      * @param luminance    độ sáng trung bình của hình nền, 0..1
-     * @param transparency 0 = đặc, 100 = trong hoàn toàn
-     * @param defaultBg    đang dùng nền mặc định (để hộp thoại giữ tông xanh)
+     * @param transparency     0 = đặc, 100 = trong hoàn toàn; cho khay và nút
+     * @param menuTransparency "Độ trong của menu" 0..80; chỉ cho nền hộp thoại và menu
+     * @param defaultBg        đang dùng nền mặc định (để hộp thoại giữ tông xanh)
      */
-    static void update(Bitmap blur, float luminance, int transparency, boolean defaultBg) {
+    static void update(Bitmap blur, float luminance, int transparency, int menuTransparency, boolean defaultBg) {
         blurred = blur;
         version++;
         float t = (100 - Math.max(0, Math.min(100, transparency))) / 100f;
@@ -50,7 +51,7 @@ final class Frost {
             // Hình sáng: kính tối lại để chữ trắng vẫn đọc được, không bao giờ trong hẳn.
             glassColor = argb(0.25f + t * 0.60f, 0x0E1512);
         }
-        panelColor = argb(0.72f + t * 0.23f, defaultBg ? 0x102219 : 0x0E1512);
+        panelColor = argb(Levels.menuAlpha(menuTransparency), defaultBg ? 0x102219 : 0x0E1512);
         for (Iterator<WeakReference<Glass>> it = ALL.iterator(); it.hasNext(); ) {
             Glass g = it.next().get();
             if (g == null) it.remove();

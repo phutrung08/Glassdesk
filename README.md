@@ -112,6 +112,7 @@ Chép lên tivi bằng `tools\Chep-hinh-nen.bat`, hoặc trên tivi vào Cài đ
 ### Thư viện bên thứ ba
 
 - Ứng dụng không dùng thư viện bên thứ ba nào.
+- Biểu tượng trong Glassdeck là Material Symbols của Google, dùng theo giấy phép Apache License 2.0.
 - Chỉ dùng JUnit 4 (EPL 1.0) cho test.
 - Tidyo PC tải Android SDK Platform-Tools của Google khi bạn đồng ý. Công cụ này không kèm trong repo và tuân theo giấy phép của Google.
 
@@ -229,6 +230,7 @@ adb shell pm enable com.google.android.tvlauncher
 ### Third-party software
 
 - The apps do not use any third-party libraries.
+- Glassdeck's icons are Material Symbols by Google, used under the Apache License 2.0.
 - Only JUnit 4 (EPL 1.0) is used, for tests.
 - Tidyo PC downloads Google's Android SDK Platform-Tools when you agree. They are not included in the repo and are subject to Google's license.
 

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Machine-assisted translation, please have a native speaker review -->
+<resources>
+    <string name="pill_inputs">入力切替</string>
+    <string name="pill_settings">設定</string>
+
+    <string name="app_menu_to_front">最前面に移動</string>
+    <string name="app_menu_move_left">左に移動</string>
+    <string name="app_menu_move_right">右に移動</string>
+    <string name="app_menu_hide">ホーム画面から非表示</string>
+    <string name="app_menu_info">アプリ情報</string>
+
+    <string name="toast_cannot_open">%1$s を開けませんでした</string>
+    <string name="toast_info_failed">アプリ情報ページを開けませんでした</string>
+    <string name="toast_no_inputs">このテレビでは入力の一覧を表示できません。リモコンの「入力」ボタンをお使いください。</string>
+    <string name="toast_input_switch_failed">%1$s に切り替えできませんでした</string>
+
+    <string name="settings_title">設定</string>
+    <string name="settings_wallpaper">壁紙</string>
+    <string name="settings_tray_opacity">トレイとボタンの透明度</string>
+    <string name="settings_menu_opacity">メニューの透明度</string>
+    <string name="settings_clock24">24時間表示</string>
+    <string name="settings_language">言語</string>
+    <string name="settings_cleanup">クリーンアップ</string>
+    <string name="settings_hidden_apps">非表示のアプリ</string>
+    <string name="settings_tv_settings">テレビの設定</string>
+    <string name="toast_settings_failed">設定を開けませんでした</string>
+    <string name="toast_tidyo_missing">Tidyo TV がインストールされていません</string>
+    <string name="toast_no_hidden">非表示のアプリはありません</string>
+    <plurals name="toast_hidden_restored">
+        <item quantity="other">%d 個のアプリを再表示しました</item>
+    </plurals>
+    <string name="free_value">空き %1$s</string>
+    <string name="percent">%1$d%%</string>
+
+    <string name="wallpaper_default">標準</string>
+    <plurals name="wallpaper_value_auto">
+        <item quantity="other">自動切替 · %d 枚</item>
+    </plurals>
+    <string name="wp_title">壁紙</string>
+    <string name="wp_mode_single">1枚表示</string>
+    <string name="wp_mode_auto">自動切替</string>
+    <string name="wp_interval_label">切替間隔</string>
+    <string name="wp_add_tile">テレビ / USB から追加</string>
+    <string name="toast_wp_default_not_in_auto">標準の背景は自動切替モードでは使用できません</string>
+    <string name="toast_wp_none_selected">画像が選択されていないため、壁紙モードは変更されません</string>
+    <string name="toast_wp_read_failed">画像 %1$s を読み込めませんでした</string>
+
+    <string name="wp_name_sunset">夕焼け</string>
+    <string name="wp_name_ocean">海</string>
+    <string name="wp_name_aurora">オーロラ</string>
+    <string name="wp_name_peach">ピーチピンク</string>
+    <string name="wp_name_fire_ice">炎と氷</string>
+    <string name="wp_name_tidyo_blue">Tidyo ブルー</string>
+    <string name="wp_name_tidyo_green">Tidyo グリーン</string>
+    <string name="wp_name_tidyo_red">Tidyo レッド</string>
+    <string name="wp_name_tidyo_purple">Tidyo パープル</string>
+    <string name="wp_name_tidyo_yellow">Tidyo イエロー</string>
+    <string name="wp_name_tidyo_orange">Tidyo オレンジ</string>
+    <string name="wp_name_dusk_mountains">黄昏の山々</string>
+    <string name="wp_name_night_city">夜の街</string>
+
+    <string name="slider_hint">◀ ▶ で調整 · OK で保存</string>
+    <string name="interval_title">画像の切替間隔</string>
+    <plurals name="interval_seconds">
+        <item quantity="other">%d 秒</item>
+    </plurals>
+    <plurals name="interval_minutes">
+        <item quantity="other">%d 分</item>
+    </plurals>
+    <plurals name="interval_hours">
+        <item quantity="other">%d 時間</item>
+    </plurals>
+    <plurals name="interval_unit_seconds">
+        <item quantity="other">秒</item>
+    </plurals>
+    <plurals name="interval_unit_minutes">
+        <item quantity="other">分</item>
+    </plurals>
+    <plurals name="interval_unit_hours">
+        <item quantity="other">時間</item>
+    </plurals>
+
+    <string name="language_system">システムの設定に従う</string>
+
+    <string name="roots_title">画像の取得元を選択</string>
+    <string name="roots_title_no_usb">画像の取得元を選択（USB が見つかりません）</string>
+    <string name="root_usb">USB · %1$s</string>
+    <string name="root_internal">テレビのストレージ · %1$s</string>
+    <string name="browse_back">戻る</string>
+    <plurals name="browse_add_all">
+        <item quantity="other">このフォルダ内の %d 枚をすべて追加</item>
+    </plurals>
+    <string name="browse_empty">このフォルダには画像がありません (.jpg .png .webp)</string>
+    <string name="toast_no_storage">ストレージを読み取れませんでした。USB を抜いて差し直してみてください。</string>
+    <string name="toast_perm_needed">テレビや USB から画像を取得するには、ストレージへのアクセス許可が必要です</string>
+    <plurals name="toast_copying">
+        <item quantity="other">%d 枚の画像をコピー中…</item>
+    </plurals>
+    <plurals name="toast_copied">
+        <item quantity="other">%d 枚の画像を追加しました。壁紙で選択してください。</item>
+    </plurals>
+    <string name="toast_copied_partial">%2$d 枚中 %1$d 枚を追加しました。残りはコピーできませんでした。</string>
+
+    <string name="cleanup_title">クリーンアップ</string>
+    <string name="cleanup_hint">インストールサイズ順に並べ替えています。アプリで OK を押すとシステムの情報ページが開き、キャッシュの削除、強制停止、アンインストールができます。</string>
+    <string name="cleanup_storage">ストレージ</string>
+    <string name="cleanup_free_of">空き %1$s / 全体 %2$s</string>
+    <string name="toast_details_failed">%1$s の情報ページを開けませんでした</string>
+</resources>

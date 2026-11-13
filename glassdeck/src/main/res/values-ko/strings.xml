@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Machine-assisted translation, please have a native speaker review -->
+<resources>
+    <string name="pill_inputs">입력</string>
+    <string name="pill_settings">설정</string>
+
+    <string name="app_menu_to_front">맨 앞으로 이동</string>
+    <string name="app_menu_move_left">왼쪽으로 이동</string>
+    <string name="app_menu_move_right">오른쪽으로 이동</string>
+    <string name="app_menu_hide">홈 화면에서 숨기기</string>
+    <string name="app_menu_info">앱 정보</string>
+
+    <string name="toast_cannot_open">%1$s을(를) 열 수 없습니다</string>
+    <string name="toast_info_failed">앱 정보 페이지를 열 수 없습니다</string>
+    <string name="toast_no_inputs">이 TV는 입력 목록을 제공하지 않습니다. 리모컨의 입력 버튼을 사용하세요.</string>
+    <string name="toast_input_switch_failed">%1$s(으)로 전환할 수 없습니다</string>
+
+    <string name="settings_title">설정</string>
+    <string name="settings_wallpaper">배경화면</string>
+    <string name="settings_tray_opacity">트레이 및 버튼 투명도</string>
+    <string name="settings_menu_opacity">메뉴 투명도</string>
+    <string name="settings_clock24">24시간 시계</string>
+    <string name="settings_language">언어</string>
+    <string name="settings_cleanup">정리</string>
+    <string name="settings_hidden_apps">숨긴 앱</string>
+    <string name="settings_tv_settings">TV 설정</string>
+    <string name="toast_settings_failed">설정을 열 수 없습니다</string>
+    <string name="toast_tidyo_missing">Tidyo TV가 설치되어 있지 않습니다</string>
+    <string name="toast_no_hidden">숨긴 앱이 없습니다</string>
+    <plurals name="toast_hidden_restored">
+        <item quantity="other">앱 %d개를 다시 표시했습니다</item>
+    </plurals>
+    <string name="free_value">여유 %1$s</string>
+    <string name="percent">%1$d%%</string>
+
+    <string name="wallpaper_default">기본</string>
+    <plurals name="wallpaper_value_auto">
+        <item quantity="other">자동 변경 · 이미지 %d개</item>
+    </plurals>
+    <string name="wp_title">배경화면</string>
+    <string name="wp_mode_single">이미지 한 장</string>
+    <string name="wp_mode_auto">자동 변경</string>
+    <string name="wp_interval_label">변경 주기</string>
+    <string name="wp_add_tile">TV / USB에서 추가</string>
+    <string name="toast_wp_default_not_in_auto">기본 배경은 자동 변경 모드에서 사용할 수 없습니다</string>
+    <string name="toast_wp_none_selected">선택된 이미지가 없어 배경화면 모드는 그대로 유지됩니다</string>
+    <string name="toast_wp_read_failed">이미지 %1$s을(를) 읽을 수 없습니다</string>
+
+    <string name="wp_name_sunset">석양</string>
+    <string name="wp_name_ocean">바다</string>
+    <string name="wp_name_aurora">오로라</string>
+    <string name="wp_name_peach">복숭아 핑크</string>
+    <string name="wp_name_fire_ice">불과 얼음</string>
+    <string name="wp_name_tidyo_blue">Tidyo 블루</string>
+    <string name="wp_name_tidyo_green">Tidyo 그린</string>
+    <string name="wp_name_tidyo_red">Tidyo 레드</string>
+    <string name="wp_name_tidyo_purple">Tidyo 퍼플</string>
+    <string name="wp_name_tidyo_yellow">Tidyo 옐로</string>
+    <string name="wp_name_tidyo_orange">Tidyo 오렌지</string>
+    <string name="wp_name_dusk_mountains">황혼의 산</string>
+    <string name="wp_name_night_city">밤의 도시</string>
+
+    <string name="slider_hint">◀ ▶ 조절 · OK 저장</string>
+    <string name="interval_title">이미지 변경 주기</string>
+    <plurals name="interval_seconds">
+        <item quantity="other">%d초</item>
+    </plurals>
+    <plurals name="interval_minutes">
+        <item quantity="other">%d분</item>
+    </plurals>
+    <plurals name="interval_hours">
+        <item quantity="other">%d시간</item>
+    </plurals>
+    <plurals name="interval_unit_seconds">
+        <item quantity="other">초</item>
+    </plurals>
+    <plurals name="interval_unit_minutes">
+        <item quantity="other">분</item>
+    </plurals>
+    <plurals name="interval_unit_hours">
+        <item quantity="other">시간</item>
+    </plurals>
+
+    <string name="language_system">시스템 기본값</string>
+
+    <string name="roots_title">이미지를 어디에서 가져올까요?</string>
+    <string name="roots_title_no_usb">이미지를 어디에서 가져올까요? (USB를 찾을 수 없음)</string>
+    <string name="root_usb">USB · %1$s</string>
+    <string name="root_internal">TV 저장공간 · %1$s</string>
+    <string name="browse_back">뒤로</string>
+    <plurals name="browse_add_all">
+        <item quantity="other">이 폴더의 이미지 %d개 모두 추가</item>
+    </plurals>
+    <string name="browse_empty">이 폴더에는 이미지가 없습니다 (.jpg .png .webp)</string>
+    <string name="toast_no_storage">저장공간을 읽을 수 없습니다. USB를 뽑았다가 다시 꽂아 보세요.</string>
+    <string name="toast_perm_needed">TV나 USB에서 이미지를 가져오려면 저장공간 권한이 필요합니다</string>
+    <plurals name="toast_copying">
+        <item quantity="other">이미지 %d개 복사 중…</item>
+    </plurals>
+    <plurals name="toast_copied">
+        <item quantity="other">이미지 %d개를 추가했습니다. 배경화면에서 선택하세요.</item>
+    </plurals>
+    <string name="toast_copied_partial">이미지 %2$d개 중 %1$d개를 추가했습니다. 나머지는 복사할 수 없었습니다.</string>
+
+    <string name="cleanup_title">정리</string>
+    <string name="cleanup_hint">설치 용량순으로 정렬됩니다. 앱에서 OK를 누르면 시스템 정보 페이지가 열리며, 여기서 캐시 삭제, 강제 종료 또는 제거를 할 수 있습니다.</string>
+    <string name="cleanup_storage">저장공간</string>
+    <string name="cleanup_free_of">여유 %1$s / 전체 %2$s</string>
+    <string name="toast_details_failed">%1$s의 정보 페이지를 열 수 없습니다</string>
+</resources>

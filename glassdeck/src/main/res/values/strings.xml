@@ -1,4 +1,156 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="app_name">Glassdeck</string>
+<!-- English (default). Vietnamese is in values-vi. Translators: copy this file to values-xx/strings.xml
+     and translate every string that is not marked translatable="false". -->
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name" translatable="false">Glassdeck</string>
+
+    <!-- Home screen: the two glass buttons at the top right -->
+    <string name="pill_inputs">Inputs</string>
+    <string name="pill_settings">Settings</string>
+
+    <!-- Menu shown when holding OK on an app in the tray -->
+    <string name="app_menu_to_front">Move to front</string>
+    <string name="app_menu_move_left">Move left</string>
+    <string name="app_menu_move_right">Move right</string>
+    <string name="app_menu_hide">Hide from home screen</string>
+    <string name="app_menu_info">App info</string>
+
+    <!-- Toasts on the home screen. %1$s is an app or input name -->
+    <string name="toast_cannot_open">Could not open %1$s</string>
+    <string name="toast_info_failed">Could not open the app info page</string>
+    <string name="toast_no_inputs">This TV does not provide a list of inputs. Use the Input button on your remote.</string>
+    <string name="toast_input_switch_failed">Could not switch to %1$s</string>
+
+    <!-- Settings menu -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_wallpaper">Wallpaper</string>
+    <string name="settings_tray_opacity">Tray and button transparency</string>
+    <string name="settings_menu_opacity">Menu transparency</string>
+    <string name="settings_clock24">24-hour clock</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_cleanup">Cleanup</string>
+    <string name="settings_hidden_apps">Hidden apps</string>
+    <!-- Small button at the bottom of Settings: opens the TV system settings -->
+    <string name="settings_tv_settings">TV settings</string>
+    <!-- Small button at the bottom of Settings: opens the companion app Tidyo TV -->
+    <string name="settings_tidyo" translatable="false">Tidyo TV</string>
+    <string name="toast_settings_failed">Could not open Settings</string>
+    <string name="toast_tidyo_missing">Tidyo TV is not installed</string>
+    <string name="toast_no_hidden">No hidden apps</string>
+    <plurals name="toast_hidden_restored">
+        <item quantity="one">%d app is visible again</item>
+        <item quantity="other">%d apps are visible again</item>
+    </plurals>
+    <!-- Value shown next to "Cleanup": %1$s is an amount like "9.2 GB" -->
+    <string name="free_value">%1$s free</string>
+    <!-- A percentage, e.g. "60%" -->
+    <string name="percent">%1$d%%</string>
+
+    <!-- Wallpaper picker -->
+    <string name="wallpaper_default">Default</string>
+    <plurals name="wallpaper_value_auto">
+        <item quantity="one">Auto-change · %d image</item>
+        <item quantity="other">Auto-change · %d images</item>
+    </plurals>
+    <string name="wp_title">Wallpaper</string>
+    <!-- Mode chip: one fixed image -->
+    <string name="wp_mode_single">Single image</string>
+    <!-- Mode chip: several images that change automatically -->
+    <string name="wp_mode_auto">Auto-change</string>
+    <!-- Label before the interval chip, e.g. "Change every [5 minutes]" -->
+    <string name="wp_interval_label">Change every</string>
+    <string name="wp_add_tile">Add from TV / USB</string>
+    <string name="toast_wp_default_not_in_auto">The default background cannot be used in auto-change mode</string>
+    <string name="toast_wp_none_selected">No image selected, so the wallpaper mode is unchanged</string>
+    <!-- %1$s is the image name -->
+    <string name="toast_wp_read_failed">Could not read the image %1$s</string>
+
+    <!-- Names of the bundled wallpapers -->
+    <string name="wp_name_sunset">Sunset</string>
+    <string name="wp_name_ocean">Ocean</string>
+    <string name="wp_name_aurora">Aurora</string>
+    <string name="wp_name_peach">Peach pink</string>
+    <string name="wp_name_fire_ice">Fire and ice</string>
+    <string name="wp_name_tidyo_blue">Tidyo blue</string>
+    <string name="wp_name_tidyo_green">Tidyo green</string>
+    <string name="wp_name_tidyo_red">Tidyo red</string>
+    <string name="wp_name_tidyo_purple">Tidyo purple</string>
+    <string name="wp_name_tidyo_yellow">Tidyo yellow</string>
+    <string name="wp_name_tidyo_orange">Tidyo orange</string>
+    <string name="wp_name_dusk_mountains">Twilight mountains</string>
+    <string name="wp_name_night_city">Night city</string>
+
+    <!-- Slider and interval panels. The arrows stand for the left and right remote buttons -->
+    <string name="slider_hint">◀ ▶ to adjust · OK to save</string>
+    <string name="interval_title">Change image every</string>
+    <!-- Interval labels, e.g. "30 seconds", "5 minutes", "1 hour" -->
+    <plurals name="interval_seconds">
+        <item quantity="one">%d second</item>
+        <item quantity="other">%d seconds</item>
+    </plurals>
+    <plurals name="interval_minutes">
+        <item quantity="one">%d minute</item>
+        <item quantity="other">%d minutes</item>
+    </plurals>
+    <plurals name="interval_hours">
+        <item quantity="one">%d hour</item>
+        <item quantity="other">%d hours</item>
+    </plurals>
+    <!-- Unit only, shown under the big number in the middle of the dial -->
+    <plurals name="interval_unit_seconds">
+        <item quantity="one">second</item>
+        <item quantity="other">seconds</item>
+    </plurals>
+    <plurals name="interval_unit_minutes">
+        <item quantity="one">minute</item>
+        <item quantity="other">minutes</item>
+    </plurals>
+    <plurals name="interval_unit_hours">
+        <item quantity="one">hour</item>
+        <item quantity="other">hours</item>
+    </plurals>
+
+    <!-- Language picker -->
+    <string name="language_system">System default</string>
+    <string name="lang_vi" translatable="false">Tiếng Việt</string>
+    <string name="lang_en" translatable="false">English</string>
+    <string name="lang_zh" translatable="false">中文</string>
+    <string name="lang_ja" translatable="false">日本語</string>
+    <string name="lang_ko" translatable="false">한국어</string>
+    <string name="lang_fr" translatable="false">Français</string>
+
+    <!-- Storage browser (adding wallpapers from the TV or a USB drive) -->
+    <string name="roots_title">Where to get images from?</string>
+    <string name="roots_title_no_usb">Where to get images from? (no USB drive found)</string>
+    <!-- %1$s is the name of the storage device -->
+    <string name="root_usb">USB · %1$s</string>
+    <string name="root_internal">TV storage · %1$s</string>
+    <!-- Row that goes up one folder level, or back to the list of storage devices -->
+    <string name="browse_back">Back</string>
+    <plurals name="browse_add_all">
+        <item quantity="one">Add the %d image in this folder</item>
+        <item quantity="other">Add all %d images in this folder</item>
+    </plurals>
+    <string name="browse_empty">This folder has no images (.jpg .png .webp)</string>
+    <string name="toast_no_storage">No storage could be read. Try unplugging and re-inserting the USB drive.</string>
+    <string name="toast_perm_needed">Storage permission is needed to get images from the TV or a USB drive</string>
+    <plurals name="toast_copying">
+        <item quantity="one">Copying %d image…</item>
+        <item quantity="other">Copying %d images…</item>
+    </plurals>
+    <plurals name="toast_copied">
+        <item quantity="one">Added %d image. Choose it in Wallpaper.</item>
+        <item quantity="other">Added %d images. Choose them in Wallpaper.</item>
+    </plurals>
+    <!-- %1$d images were copied out of %2$d -->
+    <string name="toast_copied_partial" tools:ignore="PluralsCandidate">Added %1$d of %2$d images; the rest could not be copied.</string>
+
+    <!-- Cleanup screen -->
+    <string name="cleanup_title">Cleanup</string>
+    <string name="cleanup_hint">Sorted by installed size. Press OK on an app to open the system info page, where you can clear the cache, force stop or uninstall it.</string>
+    <string name="cleanup_storage">Storage</string>
+    <string name="cleanup_ram" translatable="false">RAM</string>
+    <!-- "%1$s free / %2$s total", e.g. "9.2 GB free / 16 GB" -->
+    <string name="cleanup_free_of">%1$s free / %2$s</string>
+    <string name="toast_details_failed">Could not open the info page of %1$s</string>
 </resources>

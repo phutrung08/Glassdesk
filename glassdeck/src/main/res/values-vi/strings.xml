@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="pill_inputs">Cổng vào</string>
+    <string name="pill_settings">Cài đặt</string>
+
+    <string name="app_menu_to_front">Đưa lên đầu</string>
+    <string name="app_menu_move_left">Chuyển sang trái</string>
+    <string name="app_menu_move_right">Chuyển sang phải</string>
+    <string name="app_menu_hide">Ẩn khỏi màn hình chính</string>
+    <string name="app_menu_info">Thông tin ứng dụng</string>
+
+    <string name="toast_cannot_open">Không mở được %1$s</string>
+    <string name="toast_info_failed">Không mở được trang thông tin</string>
+    <string name="toast_no_inputs">Tivi không cung cấp danh sách cổng vào. Hãy dùng nút Input trên remote.</string>
+    <string name="toast_input_switch_failed">Không chuyển được sang %1$s</string>
+
+    <string name="settings_title">Cài đặt</string>
+    <string name="settings_wallpaper">Hình nền</string>
+    <string name="settings_tray_opacity">Độ trong của khay và nút</string>
+    <string name="settings_menu_opacity">Độ trong của menu</string>
+    <string name="settings_clock24">Đồng hồ 24 giờ</string>
+    <string name="settings_language">Ngôn ngữ</string>
+    <string name="settings_cleanup">Dọn dẹp</string>
+    <string name="settings_hidden_apps">Ứng dụng đã ẩn</string>
+    <string name="settings_tv_settings">Cài đặt tivi</string>
+    <string name="toast_settings_failed">Không mở được Cài đặt</string>
+    <string name="toast_tidyo_missing">Chưa cài Tidyo TV</string>
+    <string name="toast_no_hidden">Không có ứng dụng nào đang ẩn</string>
+    <plurals name="toast_hidden_restored">
+        <item quantity="other">Đã hiện lại %d ứng dụng</item>
+    </plurals>
+    <string name="free_value">trống %1$s</string>
+    <string name="percent">%1$d%%</string>
+
+    <string name="wallpaper_default">Mặc định</string>
+    <plurals name="wallpaper_value_auto">
+        <item quantity="other">Tự đổi · %d hình</item>
+    </plurals>
+    <string name="wp_title">Hình nền</string>
+    <string name="wp_mode_single">Một hình</string>
+    <string name="wp_mode_auto">Tự đổi</string>
+    <string name="wp_interval_label">Đổi mỗi</string>
+    <string name="wp_add_tile">Thêm từ tivi / USB</string>
+    <string name="toast_wp_default_not_in_auto">Nền mặc định không dùng được ở chế độ tự đổi</string>
+    <string name="toast_wp_none_selected">Chưa chọn hình nào nên giữ nguyên chế độ hình nền hiện tại</string>
+    <string name="toast_wp_read_failed">Không đọc được hình %1$s</string>
+
+    <string name="wp_name_sunset">Hoàng hôn</string>
+    <string name="wp_name_ocean">Đại dương</string>
+    <string name="wp_name_aurora">Cực quang</string>
+    <string name="wp_name_peach">Hồng đào</string>
+    <string name="wp_name_fire_ice">Lửa và băng</string>
+    <string name="wp_name_tidyo_blue">Tidyo xanh dương</string>
+    <string name="wp_name_tidyo_green">Tidyo xanh lá</string>
+    <string name="wp_name_tidyo_red">Tidyo đỏ</string>
+    <string name="wp_name_tidyo_purple">Tidyo tím</string>
+    <string name="wp_name_tidyo_yellow">Tidyo vàng</string>
+    <string name="wp_name_tidyo_orange">Tidyo cam</string>
+    <string name="wp_name_dusk_mountains">Núi chạng vạng</string>
+    <string name="wp_name_night_city">Thành phố đêm</string>
+
+    <string name="slider_hint">◀ ▶ để chỉnh · OK để lưu</string>
+    <string name="interval_title">Đổi hình mỗi</string>
+    <plurals name="interval_seconds">
+        <item quantity="other">%d giây</item>
+    </plurals>
+    <plurals name="interval_minutes">
+        <item quantity="other">%d phút</item>
+    </plurals>
+    <plurals name="interval_hours">
+        <item quantity="other">%d giờ</item>
+    </plurals>
+    <plurals name="interval_unit_seconds">
+        <item quantity="other">giây</item>
+    </plurals>
+    <plurals name="interval_unit_minutes">
+        <item quantity="other">phút</item>
+    </plurals>
+    <plurals name="interval_unit_hours">
+        <item quantity="other">giờ</item>
+    </plurals>
+
+    <string name="language_system">Theo hệ thống</string>
+
+    <string name="roots_title">Lấy hình từ đâu?</string>
+    <string name="roots_title_no_usb">Lấy hình từ đâu? (chưa thấy USB)</string>
+    <string name="root_usb">USB · %1$s</string>
+    <string name="root_internal">Bộ nhớ tivi · %1$s</string>
+    <string name="browse_back">Trở về</string>
+    <plurals name="browse_add_all">
+        <item quantity="other">Thêm cả %d hình trong thư mục này</item>
+    </plurals>
+    <string name="browse_empty">Thư mục này không có hình (.jpg .png .webp)</string>
+    <string name="toast_no_storage">Không đọc được bộ nhớ nào. Thử rút USB ra cắm lại.</string>
+    <string name="toast_perm_needed">Cần quyền đọc bộ nhớ để lấy hình trong tivi hoặc USB</string>
+    <plurals name="toast_copying">
+        <item quantity="other">Đang chép %d hình…</item>
+    </plurals>
+    <plurals name="toast_copied">
+        <item quantity="other">Đã thêm %d hình. Vào mục Hình nền để chọn dùng.</item>
+    </plurals>
+    <string name="toast_copied_partial">Đã thêm %1$d/%2$d hình, số còn lại không chép được.</string>
+
+    <string name="cleanup_title">Dọn dẹp</string>
+    <string name="cleanup_hint">Sắp xếp theo dung lượng cài đặt. Bấm OK vào một ứng dụng để mở trang thông tin của hệ thống, nơi bạn có thể xoá bộ nhớ đệm, buộc dừng hoặc gỡ cài đặt.</string>
+    <string name="cleanup_storage">Bộ nhớ trong</string>
+    <string name="cleanup_free_of">trống %1$s / %2$s</string>
+    <string name="toast_details_failed">Không mở được trang thông tin của %1$s</string>
+</resources>
