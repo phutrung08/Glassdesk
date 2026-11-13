@@ -90,6 +90,7 @@ public class HomeActivity extends Activity {
     private SettingsMenu settings;
     private WallpaperPicker wallpaperPicker;
     private SliderPanel sliderPanel;
+    private NavSound sound;
     private IntervalPicker intervalPicker;
     private LanguagePicker languagePicker;
     private StorageBrowser browser;
@@ -236,6 +237,7 @@ public class HomeActivity extends Activity {
         intervalPicker = new IntervalPicker(this);
         languagePicker = new LanguagePicker(this);
         browser = new StorageBrowser(this);
+        sound = NavSound.install(this);
 
         IntentFilter f = new IntentFilter();
         f.addAction(Intent.ACTION_PACKAGE_ADDED);
@@ -261,6 +263,7 @@ public class HomeActivity extends Activity {
         appsJob++;
         exec.shutdownNow();
         thumbs.shutdown();
+        sound.release();
         super.onDestroy();
     }
 
@@ -315,6 +318,14 @@ public class HomeActivity extends Activity {
 
     Prefs prefs() { return prefs; }
     OverlayHost overlays() { return overlays; }
+
+    void previewSound() { sound.preview(); }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent e) {
+        sound.onKey(e);
+        return super.dispatchKeyEvent(e);
+    }
     Thumbnails thumbs() { return thumbs; }
     SettingsMenu settings() { return settings; }
     WallpaperPicker wallpaperPicker() { return wallpaperPicker; }

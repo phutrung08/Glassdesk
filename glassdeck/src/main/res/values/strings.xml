@@ -27,6 +27,7 @@
     <string name="settings_tray_opacity">Tray and button transparency</string>
     <string name="settings_menu_opacity">Menu transparency</string>
     <string name="settings_clock24">24-hour clock</string>
+    <string name="settings_sound">Navigation sound</string>
     <string name="settings_language">Language</string>
     <string name="settings_cleanup">Cleanup</string>
     <string name="settings_hidden_apps">Hidden apps</string>

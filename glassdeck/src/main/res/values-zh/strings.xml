@@ -20,6 +20,7 @@
     <string name="settings_tray_opacity">托盘和按钮透明度</string>
     <string name="settings_menu_opacity">菜单透明度</string>
     <string name="settings_clock24">24 小时制时钟</string>
+    <string name="settings_sound">导航音效</string>
     <string name="settings_language">语言</string>
     <string name="settings_cleanup">清理</string>
     <string name="settings_hidden_apps">已隐藏的应用</string>

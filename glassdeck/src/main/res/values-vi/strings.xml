@@ -19,6 +19,7 @@
     <string name="settings_tray_opacity">Độ trong của khay và nút</string>
     <string name="settings_menu_opacity">Độ trong của menu</string>
     <string name="settings_clock24">Đồng hồ 24 giờ</string>
+    <string name="settings_sound">Âm thanh điều hướng</string>
     <string name="settings_language">Ngôn ngữ</string>
     <string name="settings_cleanup">Dọn dẹp</string>
     <string name="settings_hidden_apps">Ứng dụng đã ẩn</string>

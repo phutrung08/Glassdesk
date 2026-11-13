@@ -16,7 +16,7 @@ import java.util.Set;
 /** Menu Cài đặt: các dòng có biểu tượng, giá trị hoặc ô điều khiển, và hai nút nhỏ ở cuối. */
 final class SettingsMenu {
     // Vị trí các dòng, để quay lại đúng dòng sau khi chỉnh xong ở bảng con.
-    static final int WALLPAPER = 0, TRAY_OPACITY = 1, MENU_OPACITY = 2, CLOCK = 3, LANGUAGE = 4;
+    static final int WALLPAPER = 0, TRAY_OPACITY = 1, MENU_OPACITY = 2, CLOCK = 3, SOUND = 4, LANGUAGE = 5;
 
     private static final String TIDYO = "io.github.phutrung08.tidyo";
 
@@ -55,6 +55,11 @@ final class SettingsMenu {
             clockSwitch.setChecked(on, true);
             h.applyClock();
         }).icon(R.drawable.ic_schedule).trailing(clockSwitch).keepOpen());
+
+        menu.add(new GlassMenu.Row(h.getString(R.string.settings_sound),
+                () -> h.sliderPanel().show(R.string.settings_sound, Prefs.SOUND_VOLUME,
+                        0, 100, Prefs.SOUND_VOLUME_DEFAULT, SOUND, h::previewSound))
+                .icon(R.drawable.ic_volume_up).trailing(percentBar(prefs.soundVolume(), 100)).keepOpen());
 
         menu.add(new GlassMenu.Row(h.getString(R.string.settings_language),
                 () -> h.languagePicker().show())

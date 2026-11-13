@@ -22,6 +22,11 @@ final class SliderPanel {
     }
 
     void show(int titleRes, String key, int min, int max, int dflt, int returnRow) {
+        show(titleRes, key, min, max, dflt, returnRow, h::refreshFrost);
+    }
+
+    /** onChange chạy mỗi khi giá trị đổi (và khi Back trả về giá trị cũ): làm mới phần đang chịu ảnh hưởng. */
+    void show(int titleRes, String key, int min, int max, int dflt, int returnRow, Runnable onChange) {
         final Prefs prefs = h.prefs();
         final int old = Levels.snap(prefs.getInt(key, dflt), min, max, STEP);
         final int[] cur = {old};
@@ -58,7 +63,7 @@ final class SliderPanel {
                 if (next != cur[0]) {
                     cur[0] = next;
                     prefs.putInt(key, next);          // áp dụng ngay; Back sẽ trả về giá trị cũ
-                    h.refreshFrost();
+                    onChange.run();
                     value.setText(h.getString(R.string.percent, next));
                     slider.setValue(next);
                     GlassUi.refreshShadows(panel);
@@ -74,7 +79,7 @@ final class SliderPanel {
         int width = h.getResources().getDisplayMetrics().widthPixels * 52 / 100;
         h.overlays().show(panel, width, OverlayHost.Zone.ABOVE_TRAY, true, panel, () -> {
             prefs.putInt(key, old);
-            h.refreshFrost();
+            onChange.run();
             h.settings().show(returnRow, true);
         });
     }

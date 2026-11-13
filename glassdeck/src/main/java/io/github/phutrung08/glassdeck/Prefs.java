@@ -11,6 +11,8 @@ final class Prefs {
     static final String MODE_DEFAULT = "default", MODE_SINGLE = "single", MODE_MULTI = "multi";
     static final String TRANSPARENCY = "transparency", MENU_TRANSPARENCY = "menu_transparency";
     static final int TRANSPARENCY_DEFAULT = 60, MENU_TRANSPARENCY_DEFAULT = 50;
+    static final String SOUND_VOLUME = "sound_volume";
+    static final int SOUND_VOLUME_DEFAULT = 60;
 
     private final SharedPreferences sp;
 
@@ -30,6 +32,11 @@ final class Prefs {
 
     int menuTransparency() {
         return Levels.snap(sp.getInt(MENU_TRANSPARENCY, MENU_TRANSPARENCY_DEFAULT), 0, 80, 10);
+    }
+
+    /** Âm lượng tiếng di chuyển, 0 = tắt. */
+    int soundVolume() {
+        return Levels.snap(sp.getInt(SOUND_VOLUME, SOUND_VOLUME_DEFAULT), 0, 100, 10);
     }
 
     boolean clock24h() { return sp.getBoolean("clock_24h", true); }

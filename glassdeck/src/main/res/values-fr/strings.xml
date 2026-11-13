@@ -20,6 +20,7 @@
     <string name="settings_tray_opacity">Opacité du panneau et des boutons</string>
     <string name="settings_menu_opacity">Opacité du menu</string>
     <string name="settings_clock24">Horloge 24 h</string>
+    <string name="settings_sound">Son de navigation</string>
     <string name="settings_language">Langue</string>
     <string name="settings_cleanup">Nettoyage</string>
     <string name="settings_hidden_apps">Applications masquées</string>

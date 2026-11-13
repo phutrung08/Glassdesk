@@ -20,6 +20,7 @@
     <string name="settings_tray_opacity">トレイとボタンの透明度</string>
     <string name="settings_menu_opacity">メニューの透明度</string>
     <string name="settings_clock24">24時間表示</string>
+    <string name="settings_sound">操作音</string>
     <string name="settings_language">言語</string>
     <string name="settings_cleanup">クリーンアップ</string>
     <string name="settings_hidden_apps">非表示のアプリ</string>

@@ -21,3 +21,4 @@ tools/**/disabled-by-tidyo.txt
 tools/**/platform-tools/
 tools/wallpapers/
 screenshots/
+tools/sound-gen/preview/

@@ -20,6 +20,7 @@
     <string name="settings_tray_opacity">트레이 및 버튼 투명도</string>
     <string name="settings_menu_opacity">메뉴 투명도</string>
     <string name="settings_clock24">24시간 시계</string>
+    <string name="settings_sound">탐색 효과음</string>
     <string name="settings_language">언어</string>
     <string name="settings_cleanup">정리</string>
     <string name="settings_hidden_apps">숨긴 앱</string>

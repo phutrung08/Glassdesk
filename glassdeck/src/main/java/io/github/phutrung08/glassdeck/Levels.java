@@ -19,6 +19,12 @@ final class Levels {
     }
 
     /** Độ đục (alpha 0..1) của nền menu theo "Độ trong của menu": 0% = 0,92; 80% = 0,32. */
+    /** Âm lượng 0..100 thành hệ số 0..1 theo đường cong nhẹ, để các mức thấp vẫn đủ nhỏ. */
+    static float soundGain(int volumePercent) {
+        float p = clamp(volumePercent, 0, 100) / 100f;
+        return (float) Math.pow(p, 1.5);
+    }
+
     static float menuAlpha(int menuTransparency) {
         return 0.92f - clamp(menuTransparency, 0, 100) / 100f * 0.75f;
     }

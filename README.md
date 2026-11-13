@@ -23,6 +23,7 @@ Màn hình chính (launcher) gọn nhẹ cho Android TV, giao diện kính mờ,
 - Chọn cổng vào (HDMI/AV).
 - Hình nền: một hình hoặc nhiều hình tự đổi. Lấy từ bộ nhớ tivi hoặc USB.
 - Điều chỉnh độ trong suốt của kính.
+- Tiếng "tích" nhẹ khi di chuyển và bấm OK (tự tổng hợp, chỉnh âm lượng hoặc tắt trong Cài đặt). Muốn chỉ còn tiếng này, hãy tắt "Âm thanh hệ thống" của tivi.
 - Mục **Dọn dẹp**: xem bộ nhớ/RAM, xem ứng dụng theo dung lượng, mở trang xoá cache hoặc gỡ ứng dụng.
 
 ### Tidyo TV
@@ -149,6 +150,7 @@ Glassdeck is a lightweight home screen launcher for Android TV with a frosted-gl
 - Choose input source (HDMI/AV).
 - Wallpaper: one image or many images that rotate. Load from TV storage or USB.
 - Adjust glass transparency.
+- A soft tick sound when navigating and pressing OK (synthesized by the project; adjustable or off in Settings). To hear only this sound, turn off the TV's own "System sounds".
 - **Cleanup** section: view memory/RAM, list apps by size, open the app page to clear cache or uninstall.
 
 ### Tidyo TV features

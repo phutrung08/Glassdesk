@@ -48,6 +48,7 @@ public class CleanupActivity extends Activity {
     private int job;
     private String lastPkg;
     private ExecutorService exec;
+    private NavSound sound;
 
     @Override
     protected void attachBaseContext(Context base) {
@@ -78,6 +79,13 @@ public class CleanupActivity extends Activity {
         col.addView(stats, lpStats);
 
         list = Ui.glassList(this, col);
+        sound = NavSound.install(this);
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(android.view.KeyEvent e) {
+        sound.onKey(e);
+        return super.dispatchKeyEvent(e);
     }
 
     private static LinearLayout.LayoutParams weight() {
@@ -111,6 +119,7 @@ public class CleanupActivity extends Activity {
     protected void onDestroy() {
         job++;
         exec.shutdownNow();
+        sound.release();
         super.onDestroy();
     }
 

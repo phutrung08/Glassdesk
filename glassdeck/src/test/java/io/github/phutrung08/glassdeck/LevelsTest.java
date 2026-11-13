@@ -8,6 +8,22 @@ import org.junit.Test;
 
 public class LevelsTest {
     @Test
+    public void soundGainIsClampedAndIncreasing() {
+        assertEquals(0f, Levels.soundGain(0), 0f);
+        assertEquals(1f, Levels.soundGain(100), 1e-6f);
+        assertEquals(0f, Levels.soundGain(-20), 0f);
+        assertEquals(1f, Levels.soundGain(250), 1e-6f);
+        float prev = -1f;
+        for (int v = 0; v <= 100; v += 10) {
+            float g = Levels.soundGain(v);
+            assertTrue("tăng dần tại " + v, g > prev);
+            prev = g;
+        }
+        // Mức mặc định 60% phải êm hơn mức tuyến tính (0,6).
+        assertTrue(Levels.soundGain(60) < 0.6f);
+    }
+
+    @Test
     public void clamp_keepsValueInRange() {
         assertEquals(0, Levels.clamp(-5, 0, 100));
         assertEquals(100, Levels.clamp(130, 0, 100));
